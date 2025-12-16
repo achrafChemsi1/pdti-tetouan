@@ -450,4 +450,4 @@ export const projectsData: Project[] = [
   { "project_id": 35, "commune_name": "Sahtryiene", "latitude": 35.5400, "longitude": -5.4300, "axis": "Axe04", "sector": "MiseNiveauTerritoriale", "project_title": "Programme Animation Multisectorielle Acquisition Minibus", "cost_mdh": 1.5, "jobs_planned": 12, "njt": 3600, "duration_months": 6 },
   { "project_id": 35, "commune_name": "Jbel Lahbib", "latitude": 35.2800, "longitude": -5.5000, "axis": "Axe04", "sector": "MiseNiveauTerritoriale", "project_title": "Programme Animation Multisectorielle Acquisition Minibus", "cost_mdh": 1.5, "jobs_planned": 12, "njt": 3600, "duration_months": 6 },
   { "project_id": 35, "commune_name": "Souk Lkdim", "latitude": 35.3600, "longitude": -5.4200, "axis": "Axe04", "sector": "MiseNiveauTerritoriale", "project_title": "Programme Animation Multisectorielle Acquisition Minibus", "cost_mdh": 1.5, "jobs_planned": 12, "njt": 3600, "duration_months": 6 }
-];
+]

@@ -35,7 +35,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({ commune, onClose }) =>
             <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 group-hover:bg-brand-500 transition-colors"></div>
             <h3 className="font-semibold text-slate-800 text-sm mb-3 pl-2">{project.project_title}</h3>
             
-            <div className="grid grid-cols-3 gap-2 pl-2">
+            <div className="grid grid-cols-2 gap-2 pl-2">
               <div className="text-center p-2 rounded-lg bg-white shadow-sm">
                 <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Coût</p>
                 <p className="text-brand-600 font-bold text-sm">{project.cost_mdh} <span className="text-[10px]">MDH</span></p>
@@ -43,6 +43,10 @@ export const ProjectList: React.FC<ProjectListProps> = ({ commune, onClose }) =>
               <div className="text-center p-2 rounded-lg bg-white shadow-sm">
                 <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Emplois</p>
                 <p className="text-slate-700 font-bold text-sm">{project.jobs_planned}</p>
+              </div>
+              <div className="text-center p-2 rounded-lg bg-white shadow-sm">
+                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">NJT</p>
+                <p className="text-slate-700 font-bold text-sm">{project.njt}</p>
               </div>
               <div className="text-center p-2 rounded-lg bg-white shadow-sm">
                 <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Durée</p>
