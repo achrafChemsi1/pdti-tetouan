@@ -220,7 +220,10 @@ const App: React.FC = () => {
 
           {/* Overlay Panel for Commune Details */}
           {selectedCommune && (
-            <div className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[500] pointer-events-none flex flex-col justify-end md:justify-start">
+            <div 
+              key={selectedCommune.name} // Key prop added here to force re-render and animation restart
+              className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[500] pointer-events-none flex flex-col justify-end md:justify-start"
+            >
                {/* Wrapper to allow pointer events on the panel itself */}
                <div className="pointer-events-auto h-2/3 md:h-full">
                   <ProjectList 
