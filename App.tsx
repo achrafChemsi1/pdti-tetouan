@@ -149,7 +149,7 @@ const App: React.FC = () => {
         
         {/* Left Sidebar: Controls & Global Stats */}
         <aside className="w-80 lg:w-96 flex flex-col bg-slate-50 border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar">
-          <div className="p-6 space-y-8">
+          <div className="p-4 space-y-5">
             
             {/* Sector Tabs */}
             <SectorTabs 
