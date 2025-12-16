@@ -16,14 +16,29 @@ const SECTOR_CONFIG: Record<SectorType, SectorConfig> = {
   [SectorType.MiseNiveauTerritoriale]: { label: "Mise à Niveau", icon: "🏗️", color: "text-amber-500", hex: "#f59e0b" },
 };
 
+const ALL_SECTORS_KEY = 'Tous';
+const ALL_SECTORS_CONFIG: SectorConfig = {
+  label: "Tous les secteurs",
+  icon: "🌍",
+  color: "text-slate-700",
+  hex: "#334155" // Slate-700 for global neutral view
+};
+
+// Merge for display in the sidebar
+const DISPLAY_SECTOR_CONFIG: Record<string, SectorConfig> = {
+  [ALL_SECTORS_KEY]: ALL_SECTORS_CONFIG,
+  ...SECTOR_CONFIG
+};
+
 const App: React.FC = () => {
-  const [currentSector, setCurrentSector] = useState<SectorType>(SectorType.Emploi);
+  // currentSector can be a SectorType or 'Tous'
+  const [currentSector, setCurrentSector] = useState<string>(ALL_SECTORS_KEY);
   const [selectedCommune, setSelectedCommune] = useState<CommuneAggregated | null>(null);
 
   // --- Data Aggregation Logic ---
   
   // 1. Identify Unique Projects (deduplicated by project_id)
-  // This ensures that shared projects are only counted once for global totals.
+  // This ensures that shared projects are only counted once for global totals (Chart).
   const uniqueProjects = useMemo(() => {
     const seen = new Set<number>();
     return projectsData.filter(p => {
@@ -33,8 +48,11 @@ const App: React.FC = () => {
     });
   }, []);
 
-  // 2. Filter projects by sector for the map (includes duplicates for communes)
+  // 2. Filter projects by sector for the map
   const filteredProjects = useMemo(() => {
+    if (currentSector === ALL_SECTORS_KEY) {
+      return projectsData;
+    }
     return projectsData.filter(p => p.sector === currentSector);
   }, [currentSector]);
 
@@ -56,9 +74,7 @@ const App: React.FC = () => {
       }
       const comm = map.get(proj.commune_name)!;
       comm.projects.push(proj);
-      // Note: For the map view, we accumulate the full budget of projects present in the commune
-      // to represent the magnitude of projects touching the territory. 
-      // If strict pro-rata distribution is needed, this would need to be divided by the number of participating communes.
+      
       comm.totalCost += proj.cost_mdh;
       comm.totalJobs += proj.jobs_planned;
       comm.totalNJT += proj.njt;
@@ -67,16 +83,23 @@ const App: React.FC = () => {
     return Array.from(map.values());
   }, [filteredProjects]);
 
-  // 4. Global Stats (Based on Unique Projects)
-  const globalStats = useMemo(() => {
-    const totalCost = uniqueProjects.reduce((acc, p) => acc + p.cost_mdh, 0);
-    const totalProjects = uniqueProjects.length;
-    const totalJobs = uniqueProjects.reduce((acc, p) => acc + p.jobs_planned, 0);
-    const totalNJT = uniqueProjects.reduce((acc, p) => acc + p.njt, 0);
-    return { totalCost, totalProjects, totalJobs, totalNJT };
-  }, [uniqueProjects]);
+  // 4. Sector Stats 
+  // Calculates stats based on the currently selected view (All or Specific Sector)
+  const stats = useMemo(() => {
+    // Deduplicate projects within the filtered set to avoid double counting shared projects
+    const uniqueFilteredProjects = filteredProjects.filter((p, index, self) => 
+      index === self.findIndex((t) => t.project_id === p.project_id)
+    );
 
-  // 5. Chart Data (Total Investment by Sector based on Unique Projects)
+    const totalCost = uniqueFilteredProjects.reduce((acc, p) => acc + p.cost_mdh, 0);
+    const totalProjects = uniqueFilteredProjects.length;
+    const totalJobs = uniqueFilteredProjects.reduce((acc, p) => acc + p.jobs_planned, 0);
+    const totalNJT = uniqueFilteredProjects.reduce((acc, p) => acc + p.njt, 0);
+    
+    return { totalCost, totalProjects, totalJobs, totalNJT };
+  }, [filteredProjects]);
+
+  // 5. Chart Data (Total Investment by Sector based on Unique Projects - Global Context)
   const chartData = useMemo(() => {
     const sums: Record<string, number> = {};
     Object.values(SectorType).forEach(s => sums[s] = 0);
@@ -96,7 +119,7 @@ const App: React.FC = () => {
 
   // --- Handlers ---
 
-  const handleSectorChange = (sector: SectorType) => {
+  const handleSectorChange = (sector: string) => {
     setCurrentSector(sector);
     setSelectedCommune(null);
   };
@@ -117,7 +140,6 @@ const App: React.FC = () => {
           <p className="text-xs text-slate-500 font-medium">Programme de Développement Territorial Intégré</p>
         </div>
         <div className="flex gap-4">
-           {/* Placeholder for user profile or extra controls */}
            <div className="h-8 w-8 rounded-full bg-slate-200"></div>
         </div>
       </header>
@@ -131,28 +153,35 @@ const App: React.FC = () => {
             
             {/* Sector Tabs */}
             <SectorTabs 
-              sectors={SECTOR_CONFIG} 
+              sectors={DISPLAY_SECTOR_CONFIG} 
               currentSector={currentSector} 
               onSelect={handleSectorChange} 
             />
 
-            {/* Global Key Metrics */}
+            {/* Stats Metrics */}
             <div>
-              <h3 className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-3 px-2">Indicateurs Globaux</h3>
+              <h3 className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-3 px-2 flex justify-between items-center">
+                <span>Indicateurs</span>
+                <span 
+                  className="text-[10px] font-bold py-0.5 px-2 rounded-full bg-slate-100 text-slate-600 truncate max-w-[120px]"
+                >
+                  {DISPLAY_SECTOR_CONFIG[currentSector].label}
+                </span>
+              </h3>
               <div className="grid grid-cols-1 gap-3">
                 <StatCard 
-                  label="Investissement Total" 
-                  value={Math.round(globalStats.totalCost)} 
+                  label="Investissement" 
+                  value={Math.round(stats.totalCost)} 
                   suffix="MDH"
                   icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                 />
                 <div className="grid grid-cols-2 gap-3">
-                  <StatCard label="Projets" value={globalStats.totalProjects} />
-                  <StatCard label="Emplois" value={globalStats.totalJobs} />
+                  <StatCard label="Projets" value={stats.totalProjects} />
+                  <StatCard label="Emplois" value={stats.totalJobs} />
                 </div>
                 <StatCard 
                   label="Jours de Travail" 
-                  value={globalStats.totalNJT.toLocaleString('fr-FR')} 
+                  value={stats.totalNJT.toLocaleString('fr-FR')} 
                   suffix="NJT"
                   icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                 />
@@ -174,19 +203,19 @@ const App: React.FC = () => {
              <DashboardMap 
                 communes={aggregatedCommunes} 
                 selectedCommune={selectedCommune}
-                sectorConfig={SECTOR_CONFIG[currentSector]}
+                sectorConfig={DISPLAY_SECTOR_CONFIG[currentSector]}
                 onCommuneSelect={handleCommuneSelect}
              />
           </div>
 
-          {/* Floating Legend / Info (Optional, bottom right) */}
+          {/* Floating Legend */}
           <div className="absolute bottom-8 right-8 z-[400] bg-white/90 backdrop-blur rounded-lg shadow-lg p-4 text-xs max-w-xs hidden lg:block border border-slate-100">
              <h4 className="font-bold text-slate-700 mb-2">Légende</h4>
              <div className="flex items-center gap-2 mb-1">
-               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: SECTOR_CONFIG[currentSector].hex }}></div>
-               <span className="text-slate-600">Projets {SECTOR_CONFIG[currentSector].label}</span>
+               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: DISPLAY_SECTOR_CONFIG[currentSector].hex }}></div>
+               <span className="text-slate-600">Projets {DISPLAY_SECTOR_CONFIG[currentSector].label}</span>
              </div>
-             <p className="text-slate-400 mt-2 italic">La taille du cercle indique le volume d'investissement des projets présents.</p>
+             <p className="text-slate-400 mt-2 italic">La taille du cercle indique le volume d'investissement.</p>
           </div>
 
           {/* Overlay Panel for Commune Details */}

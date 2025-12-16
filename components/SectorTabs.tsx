@@ -1,10 +1,10 @@
 import React from 'react';
-import { SectorType, SectorConfig } from '../types';
+import { SectorConfig } from '../types';
 
 interface SectorTabsProps {
-  sectors: Record<SectorType, SectorConfig>;
-  currentSector: SectorType;
-  onSelect: (sector: SectorType) => void;
+  sectors: Record<string, SectorConfig>;
+  currentSector: string;
+  onSelect: (sector: string) => void;
 }
 
 export const SectorTabs: React.FC<SectorTabsProps> = ({ sectors, currentSector, onSelect }) => {
@@ -32,7 +32,7 @@ export const SectorTabs: React.FC<SectorTabsProps> = ({ sectors, currentSector, 
         return (
           <button
             key={key}
-            onClick={() => onSelect(key as SectorType)}
+            onClick={() => onSelect(key)}
             className={`
               w-full text-left px-4 py-3 rounded-2xl transition-all duration-300 flex items-center gap-4 font-medium group relative border
               ${isActive 
