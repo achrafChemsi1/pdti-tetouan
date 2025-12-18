@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface FeatureCategory {
@@ -21,7 +22,8 @@ export const FeatureTabs: React.FC<FeatureTabsProps> = ({ categories, currentCat
         <span>Patrimoine Territorial</span>
         <div className="h-px bg-slate-200 flex-1"></div>
       </h3>
-      {Object.entries(categories).map(([key, config]) => {
+      {/* Fix: Explicitly cast Object.entries to correct type to avoid 'unknown' type errors in map */}
+      {(Object.entries(categories) as [string, FeatureCategory][]).map(([key, config]) => {
         const isActive = currentCategory === key;
         const count = counts[key] || 0;
         

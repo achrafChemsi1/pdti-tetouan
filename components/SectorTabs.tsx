@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { SectorConfig } from '../types';
 
@@ -14,7 +15,8 @@ export const SectorTabs: React.FC<SectorTabsProps> = ({ sectors, currentSector, 
         <span>Secteurs</span>
         <div className="h-px bg-slate-200 flex-1"></div>
       </h3>
-      {Object.entries(sectors).map(([key, config]) => {
+      {/* Fix: Explicitly cast Object.entries to correct type to avoid 'unknown' type errors in map */}
+      {(Object.entries(sectors) as [string, SectorConfig][]).map(([key, config]) => {
         const isActive = currentSector === key;
         
         // Dynamic styles for the active state

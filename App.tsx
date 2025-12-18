@@ -9,7 +9,6 @@ import { FeatureList } from './components/FeatureList';
 import { ProvincePresentation } from './components/ProvincePresentation';
 import { INFRASTRUCTURE_GEOJSON, CENTRES_EMERGENTS_GEOJSON } from './services/mapLayersData';
 
-// --- SVGs as Components for consistent styling ---
 const DropIcon = () => (
   <svg viewBox="0 0 24 24" className="w-full h-full" fill="currentColor">
     <path d="M12 2.5s-7 8.5-7 12.5a7 7 0 0 0 14 0c0-4-7-12.5-7-12.5z" />
@@ -32,7 +31,21 @@ const FEATURE_CATEGORIES = {
   CENTRE: { label: "Centres Émergents", icon: <MedicalKitIcon />, color: "text-emerald-600", hex: "#059669" },
 };
 
+type SectionId = 'diagnostics' | 'priorities' | 'synthesis';
+
+interface NavItem {
+  id: SectionId;
+  label: string;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: 'diagnostics', label: 'Diagnostics et Formulation des Projets par Axe' },
+  { id: 'priorities', label: 'Projets Prioritaires au Titre de l’Année 2026' },
+  { id: 'synthesis', label: 'Synthèse Provinciale' }
+];
+
 const App: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<SectionId>('diagnostics');
   const [currentCategory, setCurrentCategory] = useState<string>('ALL');
   const [selectedCommune, setSelectedCommune] = useState<CommuneAggregated | null>(null);
   const [selectedPOI, setSelectedPOI] = useState<{ coords: [number, number]; name: string } | null>(null);
@@ -111,14 +124,15 @@ const App: React.FC = () => {
   };
 
   const activeColor = FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES].hex;
+  const currentNavLabel = NAV_ITEMS.find(n => n.id === activeSection)?.label || '';
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-slate-50 font-sans">
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 z-20 shadow-sm relative">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#f1f5f9] font-sans">
+      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 z-50 shadow-sm relative">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-100 shrink-0">T</div>
+          <div className="w-12 h-12 bg-[#000080] rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-xl shadow-blue-100 shrink-0">T</div>
           <div className="flex flex-col">
-            <h1 className="text-base md:text-lg font-bold font-display text-blue-800 tracking-tight leading-none mb-1">
+            <h1 className="text-base md:text-lg font-black font-display text-[#000080] tracking-tight leading-none mb-1">
               Projet du PDTI de la Province de Tétouan
             </h1>
             <p className="text-[10px] md:text-[11px] text-slate-500 font-bold italic tracking-tight leading-none uppercase">
@@ -126,10 +140,33 @@ const App: React.FC = () => {
             </p>
           </div>
         </div>
+
+        {/* Strategic Navigation Bar */}
+        <nav className="hidden lg:flex items-center border-[2.5px] border-[#000080] rounded-xl overflow-hidden bg-[#eaf7f9]/20 shadow-sm max-w-[60%]">
+          {NAV_ITEMS.map((item, idx) => (
+            <React.Fragment key={item.id}>
+              {idx > 0 && <div className="w-px h-6 bg-[#000080]/20"></div>}
+              <button
+                onClick={() => {
+                  setActiveSection(item.id);
+                  setShowPresentation(false);
+                }}
+                className={`px-5 py-3 text-[10px] font-black uppercase tracking-wider transition-all leading-tight text-center ${
+                  activeSection === item.id 
+                    ? 'bg-[#000080] text-white shadow-inner' 
+                    : 'text-[#000080] hover:bg-[#000080]/5'
+                }`}
+              >
+                {item.label}
+              </button>
+            </React.Fragment>
+          ))}
+        </nav>
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
-        <aside className="w-80 lg:w-96 flex flex-col bg-white border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar">
+        {/* Persistent Sidebar */}
+        <aside className="w-80 lg:w-96 flex flex-col bg-white border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-500">
           <div className="p-5 space-y-8">
             
             <FeatureTabs 
@@ -146,7 +183,7 @@ const App: React.FC = () => {
             />
 
             <div className="pt-2 border-t border-slate-100">
-              <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-4 px-2">Analyse de l'Existant</h3>
+              <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-4 px-2">Indicateurs de Couverture</h3>
               <div className="grid grid-cols-1 gap-3">
                 <StatCard 
                   label={stats.metric1Label} 
@@ -156,96 +193,92 @@ const App: React.FC = () => {
                 <StatCard label={stats.metric2Label} value={stats.metric2Value} />
               </div>
             </div>
-
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
-               <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-sm">💡</div>
-               <p className="text-[11px] text-slate-500 font-medium leading-tight">Naviguez entre les catégories pour explorer le patrimoine stratégique de la province.</p>
-            </div>
           </div>
         </aside>
 
-        <main className="flex-1 relative bg-slate-100 p-4 lg:p-6">
-          <div className="absolute inset-0 z-0 p-4 lg:p-6">
-             <DashboardMap 
-                communes={aggregatedCommunes} 
-                selectedCommune={selectedCommune}
-                selectedPOI={selectedPOI}
-                sectorConfig={FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES] || FEATURE_CATEGORIES.ALL}
-                onCommuneSelect={handleCommuneSelect}
-             />
+        <main className="flex-1 relative bg-slate-100 overflow-hidden">
+          {/* Main Visual Container */}
+          <div className="absolute inset-0 z-0">
+             {!showPresentation ? (
+                <div key={activeSection} className="w-full h-full p-4 lg:p-6 animate-in fade-in zoom-in-95 duration-700">
+                  <DashboardMap 
+                    communes={aggregatedCommunes} 
+                    selectedCommune={selectedCommune}
+                    selectedPOI={selectedPOI}
+                    sectorConfig={FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES] || FEATURE_CATEGORIES.ALL}
+                    onCommuneSelect={handleCommuneSelect}
+                  />
+                </div>
+             ) : (
+                <div className="w-full h-full animate-in fade-in duration-700 bg-slate-900">
+                  <ProvincePresentation onClose={() => setShowPresentation(false)} />
+                </div>
+             )}
           </div>
 
-          {/* Interactive Trigger Button matching Slide header */}
-          <button 
-            onClick={() => setShowPresentation(true)}
-            className="absolute top-8 right-8 z-[300] group flex items-stretch shadow-2xl transition-transform hover:scale-[1.02] active:scale-95"
-          >
-            <div className="bg-[#eef7f8] border-[1.5px] border-navy-900 px-5 flex items-center justify-center">
-              <span className="text-[#d12027] font-black text-2xl">I</span>
-            </div>
-            <div className="bg-white border-[1.5px] border-l-0 border-navy-900 px-6 py-4 transition-colors group-hover:bg-[#f8fafc]">
-               <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#000080] whitespace-nowrap">
-                 Diagnostics et Formulation des Projets par Axe
-               </h2>
-            </div>
-          </button>
+          {/* Persistent "Explore Detail" Button - Floating above map */}
+          {!showPresentation && (
+            <button 
+              onClick={() => setShowPresentation(true)}
+              className="absolute top-10 right-10 z-[200] flex items-stretch shadow-2xl transition-all duration-500 hover:scale-[1.02] active:scale-95 group animate-in slide-in-from-top-4 duration-1000"
+            >
+              <div className="bg-[#eaf7f9] border-[2.5px] border-[#000080] px-6 flex items-center justify-center transition-colors group-hover:bg-[#dcf3f6] shadow-lg">
+                <span className="text-[#cf2e2e] font-black text-3xl font-display">I</span>
+              </div>
+              <div className="bg-white border-[2.5px] border-l-0 border-[#000080] px-8 py-5 transition-colors group-hover:bg-[#f8fafc] shadow-lg">
+                 <h2 className="text-sm md:text-base font-black tracking-tight text-[#000080] whitespace-nowrap uppercase font-display max-w-[300px] overflow-hidden truncate">
+                   {currentNavLabel}
+                 </h2>
+              </div>
+            </button>
+          )}
 
-          <div className="absolute bottom-8 left-8 z-[400] bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-5 border border-slate-200/50 w-72">
-             <h4 className="font-black text-slate-900 mb-4 uppercase tracking-tighter text-[11px] flex items-center gap-2">
-               <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
-               Classification Territoriale
-             </h4>
-             <div className="grid grid-cols-1 gap-2.5">
-               {[
-                 { id: 'AEROPORT', lbl: "Aéroport" },
-                 { id: 'BARRAGE', lbl: "Barrages" },
-                 { id: 'ZI', lbl: "Zones Industrielles" },
-                 { id: 'CENTRE', lbl: "Centres Émergents" }
-               ].map((item) => {
-                 const config = FEATURE_CATEGORIES[item.id as keyof typeof FEATURE_CATEGORIES];
-                 const count = categoryCounts[item.id as keyof typeof categoryCounts];
-                 return (
-                   <div key={item.id} className="flex items-center justify-between group transition-all duration-200 hover:translate-x-1">
-                     <div className="flex items-center gap-3">
-                       <div 
-                         className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shadow-sm border transition-all"
-                         style={{ 
-                           backgroundColor: `${config.hex}10`, 
-                           color: config.hex, 
-                           borderColor: `${config.hex}30` 
-                         }}
-                       >
-                         {typeof config.icon === 'string' ? config.icon : <div className="w-5 h-5">{config.icon}</div>}
+          {/* Map Overlay Components */}
+          {!showPresentation && (
+            <div className="absolute bottom-10 left-10 z-[100] bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-slate-200/50 w-80 animate-in slide-in-from-left-4 duration-500">
+               <h4 className="font-black text-slate-900 mb-5 uppercase tracking-tighter text-[12px] flex items-center gap-2">
+                 <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                 Légende Territoriale
+               </h4>
+               <div className="grid grid-cols-1 gap-3">
+                 {[
+                   { id: 'AEROPORT', lbl: "Aéroport" },
+                   { id: 'BARRAGE', lbl: "Barrages" },
+                   { id: 'ZI', lbl: "Zones Industrielles" },
+                   { id: 'CENTRE', lbl: "Centres Émergents" }
+                 ].map((item) => {
+                   const config = FEATURE_CATEGORIES[item.id as keyof typeof FEATURE_CATEGORIES];
+                   const count = categoryCounts[item.id as keyof typeof categoryCounts];
+                   return (
+                     <div key={item.id} className="flex items-center justify-between group transition-all duration-200 hover:translate-x-1">
+                       <div className="flex items-center gap-4">
+                         <div 
+                           className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-sm border transition-all"
+                           style={{ 
+                             backgroundColor: `${config.hex}10`, 
+                             color: config.hex, 
+                             borderColor: `${config.hex}30` 
+                           }}
+                         >
+                           {typeof config.icon === 'string' ? config.icon : <div className="w-6 h-6">{config.icon}</div>}
+                         </div>
+                         <span className="text-[12px] text-slate-700 font-bold">{item.lbl}</span>
                        </div>
-                       <span className="text-[11px] text-slate-700 font-bold">{item.lbl}</span>
+                       <span className="text-[11px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg">
+                         {count}
+                       </span>
                      </div>
-                     <span className="text-[10px] font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-md shadow-sm">
-                       {count}
-                     </span>
-                   </div>
-                 );
-               })}
-               <div className="mt-2 pt-3 border-t border-slate-100 flex items-center justify-between">
-                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-1.5 bg-gradient-to-r from-blue-400 to-blue-700 rounded-full shadow-sm shadow-blue-100"></div>
-                    <span className="text-[10px] text-blue-700 font-black uppercase tracking-widest leading-none">Zone Littorale</span>
-                 </div>
-                 <span className="text-[9px] font-bold text-slate-400 uppercase italic">Premium</span>
-               </div>
-             </div>
-          </div>
-
-          {selectedCommune && (
-            <div className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[500] pointer-events-none flex flex-col">
-               <div className="pointer-events-auto h-full">
-                  <ProjectList commune={selectedCommune} onClose={() => setSelectedCommune(null)} />
+                   );
+                 })}
                </div>
             </div>
           )}
 
-          {showPresentation && (
-            <div className="fixed inset-0 z-[1000] bg-white animate-in fade-in zoom-in-95 duration-300">
-               <ProvincePresentation onClose={() => setShowPresentation(false)} />
+          {selectedCommune && !showPresentation && (
+            <div className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[300] pointer-events-none flex flex-col">
+               <div className="pointer-events-auto h-full">
+                  <ProjectList commune={selectedCommune} onClose={() => setSelectedCommune(null)} />
+               </div>
             </div>
           )}
         </main>
