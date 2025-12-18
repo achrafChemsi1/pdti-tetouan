@@ -1,66 +1,81 @@
 import React, { useState, useMemo } from 'react';
-import { Project, SectorType, CommuneAggregated, SectorConfig } from './types';
+import { CommuneAggregated } from './types';
 import { projectsData } from './services/projectData';
 import { StatCard } from './components/StatCard';
-import { SectorTabs } from './components/SectorTabs';
+import { FeatureTabs } from './components/FeatureTabs';
 import { ProjectList } from './components/ProjectList';
 import { DashboardMap } from './components/DashboardMap';
-import { InvestmentChart } from './components/InvestmentChart';
+import { FeatureList } from './components/FeatureList';
+import { ProvincePresentation } from './components/ProvincePresentation';
+import { INFRASTRUCTURE_GEOJSON, CENTRES_EMERGENTS_GEOJSON } from './services/mapLayersData';
 
-// --- Configurations ---
-const SECTOR_CONFIG: Record<SectorType, SectorConfig> = {
-  [SectorType.Emploi]: { label: "Emploi", icon: "💼", color: "text-indigo-600", hex: "#4f46e5" },
-  [SectorType.Education]: { label: "Éducation", icon: "🎓", color: "text-pink-500", hex: "#ec4899" },
-  [SectorType.Sante]: { label: "Santé", icon: "🏥", color: "text-cyan-500", hex: "#06b6d4" },
-  [SectorType.Eau]: { label: "Eau", icon: "💧", color: "text-teal-500", hex: "#14b8a6" },
-  [SectorType.MiseNiveauTerritoriale]: { label: "Mise à Niveau", icon: "🏗️", color: "text-amber-500", hex: "#f59e0b" },
-};
+// --- SVGs as Components for consistent styling ---
+const DropIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-full h-full" fill="currentColor">
+    <path d="M12 2.5s-7 8.5-7 12.5a7 7 0 0 0 14 0c0-4-7-12.5-7-12.5z" />
+    <path d="M9 15c0-1.5 1-2.5 2-2.5" fill="none" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.8" />
+  </svg>
+);
 
-const ALL_SECTORS_KEY = 'Tous';
-const ALL_SECTORS_CONFIG: SectorConfig = {
-  label: "Tous les secteurs",
-  icon: "🌍",
-  color: "text-slate-700",
-  hex: "#334155" // Slate-700 for global neutral view
-};
+const MedicalKitIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-full h-full" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="7" width="18" height="13" rx="2" />
+    <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M12 11v5M9.5 13.5h5" />
+  </svg>
+);
 
-// Merge for display in the sidebar
-const DISPLAY_SECTOR_CONFIG: Record<string, SectorConfig> = {
-  [ALL_SECTORS_KEY]: ALL_SECTORS_CONFIG,
-  ...SECTOR_CONFIG
+const FEATURE_CATEGORIES = {
+  ALL: { label: "Tout le Répertoire", icon: "🗺️", color: "text-slate-700", hex: "#475569" },
+  AEROPORT: { label: "Aéroports", icon: "✈️", color: "text-indigo-600", hex: "#4f46e5" },
+  BARRAGE: { label: "Barrages", icon: <DropIcon />, color: "text-blue-600", hex: "#2563eb" },
+  ZI: { label: "Zones Industrielles", icon: "🏭", color: "text-amber-600", hex: "#d97706" },
+  CENTRE: { label: "Centres Émergents", icon: <MedicalKitIcon />, color: "text-emerald-600", hex: "#059669" },
 };
 
 const App: React.FC = () => {
-  // currentSector can be a SectorType or 'Tous'
-  const [currentSector, setCurrentSector] = useState<string>(ALL_SECTORS_KEY);
+  const [currentCategory, setCurrentCategory] = useState<string>('ALL');
   const [selectedCommune, setSelectedCommune] = useState<CommuneAggregated | null>(null);
+  const [selectedPOI, setSelectedPOI] = useState<{ coords: [number, number]; name: string } | null>(null);
+  const [showPresentation, setShowPresentation] = useState<boolean>(false);
 
-  // --- Data Aggregation Logic ---
-  
-  // 1. Identify Unique Projects (deduplicated by project_id)
-  // This ensures that shared projects are only counted once for global totals (Chart).
-  const uniqueProjects = useMemo(() => {
-    const seen = new Set<number>();
-    return projectsData.filter(p => {
-      if (seen.has(p.project_id)) return false;
-      seen.add(p.project_id);
-      return true;
-    });
+  const allPOI = useMemo(() => {
+    const infra = INFRASTRUCTURE_GEOJSON.features.map(f => ({ ...f.properties, type: f.properties.type }));
+    const centres = CENTRES_EMERGENTS_GEOJSON.features.map(f => ({ ...f.properties, type: 'CENTRE' }));
+    return [...infra, ...centres];
   }, []);
 
-  // 2. Filter projects by sector for the map
-  const filteredProjects = useMemo(() => {
-    if (currentSector === ALL_SECTORS_KEY) {
-      return projectsData;
-    }
-    return projectsData.filter(p => p.sector === currentSector);
-  }, [currentSector]);
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      ALL: allPOI.length,
+      AEROPORT: allPOI.filter(p => p.type === 'AEROPORT').length,
+      BARRAGE: allPOI.filter(p => p.type === 'BARRAGE').length,
+      ZI: allPOI.filter(p => p.type === 'ZI').length,
+      CENTRE: allPOI.filter(p => p.type === 'CENTRE').length,
+    };
+    return counts;
+  }, [allPOI]);
 
-  // 3. Aggregate filtered projects by commune for map markers
+  const stats = useMemo(() => {
+    const filtered = currentCategory === 'ALL' 
+      ? allPOI 
+      : allPOI.filter(p => p.type === currentCategory);
+
+    let metric1Label = "Unités Recensées";
+    let metric1Value = filtered.length;
+    let metric2Label = "Total Points Géo";
+    let metric2Value = new Set(filtered.map(f => f.NOM)).size;
+
+    if (currentCategory === 'BARRAGE') {
+      metric2Label = "Retenue Est. (Hm3)";
+      metric2Value = 350;
+    }
+
+    return { total: filtered.length, metric1Label, metric1Value, metric2Label, metric2Value };
+  }, [allPOI, currentCategory]);
+
   const aggregatedCommunes = useMemo(() => {
     const map = new Map<string, CommuneAggregated>();
-    
-    filteredProjects.forEach(proj => {
+    projectsData.forEach(proj => {
       if (!map.has(proj.commune_name)) {
         map.set(proj.commune_name, {
           name: proj.commune_name,
@@ -74,163 +89,163 @@ const App: React.FC = () => {
       }
       const comm = map.get(proj.commune_name)!;
       comm.projects.push(proj);
-      
       comm.totalCost += proj.cost_mdh;
-      comm.totalJobs += proj.jobs_planned;
-      comm.totalNJT += proj.njt;
     });
-    
     return Array.from(map.values());
-  }, [filteredProjects]);
+  }, []);
 
-  // 4. Sector Stats 
-  // Calculates stats based on the currently selected view (All or Specific Sector)
-  const stats = useMemo(() => {
-    // Deduplicate projects within the filtered set to avoid double counting shared projects
-    const uniqueFilteredProjects = filteredProjects.filter((p, index, self) => 
-      index === self.findIndex((t) => t.project_id === p.project_id)
-    );
-
-    const totalCost = uniqueFilteredProjects.reduce((acc, p) => acc + p.cost_mdh, 0);
-    const totalProjects = uniqueFilteredProjects.length;
-    const totalJobs = uniqueFilteredProjects.reduce((acc, p) => acc + p.jobs_planned, 0);
-    const totalNJT = uniqueFilteredProjects.reduce((acc, p) => acc + p.njt, 0);
-    
-    return { totalCost, totalProjects, totalJobs, totalNJT };
-  }, [filteredProjects]);
-
-  // 5. Chart Data (Total Investment by Sector based on Unique Projects - Global Context)
-  const chartData = useMemo(() => {
-    const sums: Record<string, number> = {};
-    Object.values(SectorType).forEach(s => sums[s] = 0);
-    
-    uniqueProjects.forEach(p => {
-      if (sums[p.sector] !== undefined) {
-        sums[p.sector] += p.cost_mdh;
-      }
-    });
-
-    return Object.entries(sums).map(([key, value]) => ({
-      name: SECTOR_CONFIG[key as SectorType].label,
-      value: Math.round(value),
-      type: key as SectorType
-    }));
-  }, [uniqueProjects]);
-
-  // --- Handlers ---
-
-  const handleSectorChange = (sector: string) => {
-    setCurrentSector(sector);
+  const handleCategoryChange = (key: string) => {
+    setCurrentCategory(key);
+    setSelectedPOI(null);
     setSelectedCommune(null);
   };
 
   const handleCommuneSelect = (commune: CommuneAggregated) => {
     setSelectedCommune(commune);
+    setSelectedPOI(null);
   };
+
+  const handlePOISelect = (coords: [number, number], name: string) => {
+    setSelectedPOI({ coords, name });
+    setSelectedCommune(null);
+  };
+
+  const activeColor = FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES].hex;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-slate-50 font-sans">
-      
-      {/* Header */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 z-20 shadow-sm relative">
-        <div>
-          <h1 className="text-2xl font-bold font-display text-slate-800 tracking-tight">
-            <span className="text-brand-600">PDTI</span> Tétouan 2026
-          </h1>
-          <p className="text-xs text-slate-500 font-medium">Programme de Développement Territorial Intégré</p>
-        </div>
-        <div className="flex gap-4">
-           <div className="h-8 w-8 rounded-full bg-slate-200"></div>
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-100 shrink-0">T</div>
+          <div className="flex flex-col">
+            <h1 className="text-base md:text-lg font-bold font-display text-blue-800 tracking-tight leading-none mb-1">
+              Projet du PDTI de la Province de Tétouan
+            </h1>
+            <p className="text-[10px] md:text-[11px] text-slate-500 font-bold italic tracking-tight leading-none uppercase">
+              (La 1ère Tranche Prioritaire, Au titre de l’Année 2026)
+            </p>
+          </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="flex flex-1 overflow-hidden relative">
-        
-        {/* Left Sidebar: Controls & Global Stats */}
-        <aside className="w-80 lg:w-96 flex flex-col bg-slate-50 border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar">
-          <div className="p-4 space-y-5">
+        <aside className="w-80 lg:w-96 flex flex-col bg-white border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar">
+          <div className="p-5 space-y-8">
             
-            {/* Sector Tabs */}
-            <SectorTabs 
-              sectors={DISPLAY_SECTOR_CONFIG} 
-              currentSector={currentSector} 
-              onSelect={handleSectorChange} 
+            <FeatureTabs 
+              categories={FEATURE_CATEGORIES} 
+              currentCategory={currentCategory} 
+              onSelect={handleCategoryChange} 
+              counts={categoryCounts}
             />
 
-            {/* Stats Metrics */}
-            <div>
-              <h3 className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-3 px-2 flex justify-between items-center">
-                <span>Indicateurs</span>
-                <span 
-                  className="text-[10px] font-bold py-0.5 px-2 rounded-full bg-slate-100 text-slate-600 truncate max-w-[120px]"
-                >
-                  {DISPLAY_SECTOR_CONFIG[currentSector].label}
-                </span>
-              </h3>
+            <FeatureList 
+              filter={currentCategory}
+              onFeatureSelect={handlePOISelect} 
+              activeFeatureName={selectedPOI?.name || null} 
+            />
+
+            <div className="pt-2 border-t border-slate-100">
+              <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-4 px-2">Analyse de l'Existant</h3>
               <div className="grid grid-cols-1 gap-3">
                 <StatCard 
-                  label="Investissement" 
-                  value={Math.round(stats.totalCost)} 
-                  suffix="MDH"
-                  icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                  label={stats.metric1Label} 
+                  value={stats.metric1Value} 
+                  icon={<div className="w-2 h-2 rounded-full" style={{ backgroundColor: activeColor }}></div>}
                 />
-                <div className="grid grid-cols-2 gap-3">
-                  <StatCard label="Projets" value={stats.totalProjects} />
-                  <StatCard label="Emplois" value={stats.totalJobs} />
-                </div>
-                <StatCard 
-                  label="Jours de Travail" 
-                  value={stats.totalNJT.toLocaleString('fr-FR')} 
-                  suffix="NJT"
-                  icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
-                />
+                <StatCard label={stats.metric2Label} value={stats.metric2Value} />
               </div>
             </div>
 
-            {/* Chart */}
-            <div className="h-48 bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-               <p className="text-xs font-bold text-slate-400 uppercase mb-2">Répartition Investissement</p>
-               <InvestmentChart data={chartData} sectorConfigs={SECTOR_CONFIG} />
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
+               <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-sm">💡</div>
+               <p className="text-[11px] text-slate-500 font-medium leading-tight">Naviguez entre les catégories pour explorer le patrimoine stratégique de la province.</p>
             </div>
-
           </div>
         </aside>
 
-        {/* Center: Map */}
-        <main className="flex-1 relative bg-slate-100 p-4 lg:p-6 flex flex-col">
+        <main className="flex-1 relative bg-slate-100 p-4 lg:p-6">
           <div className="absolute inset-0 z-0 p-4 lg:p-6">
              <DashboardMap 
                 communes={aggregatedCommunes} 
                 selectedCommune={selectedCommune}
-                sectorConfig={DISPLAY_SECTOR_CONFIG[currentSector]}
+                selectedPOI={selectedPOI}
+                sectorConfig={FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES] || FEATURE_CATEGORIES.ALL}
                 onCommuneSelect={handleCommuneSelect}
              />
           </div>
 
-          {/* Floating Legend */}
-          <div className="absolute bottom-8 right-8 z-[400] bg-white/90 backdrop-blur rounded-lg shadow-lg p-4 text-xs max-w-xs hidden lg:block border border-slate-100">
-             <h4 className="font-bold text-slate-700 mb-2">Légende</h4>
-             <div className="flex items-center gap-2 mb-1">
-               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: DISPLAY_SECTOR_CONFIG[currentSector].hex }}></div>
-               <span className="text-slate-600">Projets {DISPLAY_SECTOR_CONFIG[currentSector].label}</span>
+          {/* Interactive Trigger Button matching Slide header */}
+          <button 
+            onClick={() => setShowPresentation(true)}
+            className="absolute top-8 right-8 z-[300] group flex items-stretch shadow-2xl transition-transform hover:scale-[1.02] active:scale-95"
+          >
+            <div className="bg-[#eef7f8] border-[1.5px] border-navy-900 px-5 flex items-center justify-center">
+              <span className="text-[#d12027] font-black text-2xl">I</span>
+            </div>
+            <div className="bg-white border-[1.5px] border-l-0 border-navy-900 px-6 py-4 transition-colors group-hover:bg-[#f8fafc]">
+               <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#000080] whitespace-nowrap">
+                 Diagnostics et Formulation des Projets par Axe
+               </h2>
+            </div>
+          </button>
+
+          <div className="absolute bottom-8 left-8 z-[400] bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-5 border border-slate-200/50 w-72">
+             <h4 className="font-black text-slate-900 mb-4 uppercase tracking-tighter text-[11px] flex items-center gap-2">
+               <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+               Classification Territoriale
+             </h4>
+             <div className="grid grid-cols-1 gap-2.5">
+               {[
+                 { id: 'AEROPORT', lbl: "Aéroport" },
+                 { id: 'BARRAGE', lbl: "Barrages" },
+                 { id: 'ZI', lbl: "Zones Industrielles" },
+                 { id: 'CENTRE', lbl: "Centres Émergents" }
+               ].map((item) => {
+                 const config = FEATURE_CATEGORIES[item.id as keyof typeof FEATURE_CATEGORIES];
+                 const count = categoryCounts[item.id as keyof typeof categoryCounts];
+                 return (
+                   <div key={item.id} className="flex items-center justify-between group transition-all duration-200 hover:translate-x-1">
+                     <div className="flex items-center gap-3">
+                       <div 
+                         className="w-9 h-9 rounded-xl flex items-center justify-center text-lg shadow-sm border transition-all"
+                         style={{ 
+                           backgroundColor: `${config.hex}10`, 
+                           color: config.hex, 
+                           borderColor: `${config.hex}30` 
+                         }}
+                       >
+                         {typeof config.icon === 'string' ? config.icon : <div className="w-5 h-5">{config.icon}</div>}
+                       </div>
+                       <span className="text-[11px] text-slate-700 font-bold">{item.lbl}</span>
+                     </div>
+                     <span className="text-[10px] font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-md shadow-sm">
+                       {count}
+                     </span>
+                   </div>
+                 );
+               })}
+               <div className="mt-2 pt-3 border-t border-slate-100 flex items-center justify-between">
+                 <div className="flex items-center gap-3">
+                    <div className="w-9 h-1.5 bg-gradient-to-r from-blue-400 to-blue-700 rounded-full shadow-sm shadow-blue-100"></div>
+                    <span className="text-[10px] text-blue-700 font-black uppercase tracking-widest leading-none">Zone Littorale</span>
+                 </div>
+                 <span className="text-[9px] font-bold text-slate-400 uppercase italic">Premium</span>
+               </div>
              </div>
-             <p className="text-slate-400 mt-2 italic">La taille du cercle indique le volume d'investissement.</p>
           </div>
 
-          {/* Overlay Panel for Commune Details */}
           {selectedCommune && (
-            <div 
-              key={selectedCommune.name} // Key prop added here to force re-render and animation restart
-              className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[500] pointer-events-none flex flex-col justify-end md:justify-start"
-            >
-               {/* Wrapper to allow pointer events on the panel itself */}
-               <div className="pointer-events-auto h-2/3 md:h-full">
-                  <ProjectList 
-                    commune={selectedCommune} 
-                    onClose={() => setSelectedCommune(null)} 
-                  />
+            <div className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[500] pointer-events-none flex flex-col">
+               <div className="pointer-events-auto h-full">
+                  <ProjectList commune={selectedCommune} onClose={() => setSelectedCommune(null)} />
                </div>
+            </div>
+          )}
+
+          {showPresentation && (
+            <div className="fixed inset-0 z-[1000] bg-white animate-in fade-in zoom-in-95 duration-300">
+               <ProvincePresentation onClose={() => setShowPresentation(false)} />
             </div>
           )}
         </main>

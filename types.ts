@@ -1,3 +1,7 @@
+
+// Fix: Import React to support React.ReactNode for icons
+import React from 'react';
+
 export interface Project {
   project_id: number;
   commune_name: string;
@@ -32,7 +36,8 @@ export enum SectorType {
 
 export interface SectorConfig {
   label: string;
-  icon: string;
+  // Fix: Updated icon type from string to string | React.ReactNode to support both emojis and JSX icons
+  icon: string | React.ReactNode;
   color: string; // Tailwind class equivalent for text/bg
   hex: string; // Hex code for charts/map
 }

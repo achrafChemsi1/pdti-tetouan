@@ -14,7 +14,8 @@
     "react-leaflet": "^5.0.0",
     "recharts": "^3.6.0",
     "leaflet": "^1.9.4",
-    "d3-delaunay": "6"
+    "d3-delaunay": "6",
+    "ol": "^10.7.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
