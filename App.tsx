@@ -24,11 +24,12 @@ const MedicalKitIcon = () => (
 );
 
 const FEATURE_CATEGORIES = {
-  ALL: { label: "Tout le Répertoire", icon: "🗺️", color: "text-slate-700", hex: "#475569" },
+  ALL: { label: "Tout le Répertoire", icon: "🗺️", color: "text-slate-500", hex: "#64748b" },
   AEROPORT: { label: "Aéroports", icon: "✈️", color: "text-indigo-600", hex: "#4f46e5" },
   BARRAGE: { label: "Barrages", icon: <DropIcon />, color: "text-blue-600", hex: "#2563eb" },
   ZI: { label: "Zones Industrielles", icon: "🏭", color: "text-amber-600", hex: "#d97706" },
   CENTRE: { label: "Centres Émergents", icon: <MedicalKitIcon />, color: "text-emerald-600", hex: "#059669" },
+  LITTORAL: { label: "Linéaire Littoral", icon: "〰️", color: "text-blue-700", hex: "#1d4ed8" }
 };
 
 type SectionId = 'diagnostics' | 'priorities' | 'synthesis';
@@ -39,9 +40,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'diagnostics', label: 'Diagnostics et Formulation des Projets par Axe' },
-  { id: 'priorities', label: 'Projets Prioritaires au Titre de l’Année 2026' },
-  { id: 'synthesis', label: 'Synthèse Provinciale' }
+  { id: 'diagnostics', label: 'DIAGNOSTICS ET FORMULATION DES PROJETS PAR AXE' },
+  { id: 'priorities', label: 'PROJETS PRIORITAIRES AU TITRE DE L’ANNÉE 2026' },
+  { id: 'synthesis', label: 'SYNTHÈSE PROVINCIALE' }
 ];
 
 const App: React.FC = () => {
@@ -64,26 +65,19 @@ const App: React.FC = () => {
       BARRAGE: allPOI.filter(p => p.type === 'BARRAGE').length,
       ZI: allPOI.filter(p => p.type === 'ZI').length,
       CENTRE: allPOI.filter(p => p.type === 'CENTRE').length,
+      LITTORAL: 1
     };
     return counts;
   }, [allPOI]);
 
   const stats = useMemo(() => {
-    const filtered = currentCategory === 'ALL' 
-      ? allPOI 
-      : allPOI.filter(p => p.type === currentCategory);
-
-    let metric1Label = "Unités Recensées";
-    let metric1Value = filtered.length;
-    let metric2Label = "Total Points Géo";
-    let metric2Value = new Set(filtered.map(f => f.NOM)).size;
-
-    if (currentCategory === 'BARRAGE') {
-      metric2Label = "Retenue Est. (Hm3)";
-      metric2Value = 350;
-    }
-
-    return { total: filtered.length, metric1Label, metric1Value, metric2Label, metric2Value };
+    const filtered = currentCategory === 'ALL' ? allPOI : allPOI.filter(p => p.type === currentCategory);
+    return { 
+      metric1Label: "Unités Recensées", 
+      metric1Value: filtered.length, 
+      metric2Label: currentCategory === 'BARRAGE' ? "Retenue (Hm3)" : "Points Géo", 
+      metric2Value: currentCategory === 'BARRAGE' ? 350 : new Set(filtered.map(f => f.NOM)).size 
+    };
   }, [allPOI, currentCategory]);
 
   const aggregatedCommunes = useMemo(() => {
@@ -91,13 +85,8 @@ const App: React.FC = () => {
     projectsData.forEach(proj => {
       if (!map.has(proj.commune_name)) {
         map.set(proj.commune_name, {
-          name: proj.commune_name,
-          lat: proj.latitude,
-          lng: proj.longitude,
-          projects: [],
-          totalCost: 0,
-          totalJobs: 0,
-          totalNJT: 0
+          name: proj.commune_name, lat: proj.latitude, lng: proj.longitude,
+          projects: [], totalCost: 0, totalJobs: 0, totalNJT: 0
         });
       }
       const comm = map.get(proj.commune_name)!;
@@ -107,32 +96,15 @@ const App: React.FC = () => {
     return Array.from(map.values());
   }, []);
 
-  const handleCategoryChange = (key: string) => {
-    setCurrentCategory(key);
-    setSelectedPOI(null);
-    setSelectedCommune(null);
-  };
-
-  const handleCommuneSelect = (commune: CommuneAggregated) => {
-    setSelectedCommune(commune);
-    setSelectedPOI(null);
-  };
-
-  const handlePOISelect = (coords: [number, number], name: string) => {
-    setSelectedPOI({ coords, name });
-    setSelectedCommune(null);
-  };
-
-  const activeColor = FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES].hex;
   const currentNavLabel = NAV_ITEMS.find(n => n.id === activeSection)?.label || '';
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#f1f5f9] font-sans">
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 z-50 shadow-sm relative">
+      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 z-[100] shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#000080] rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-xl shadow-blue-100 shrink-0">T</div>
+          <div className="w-12 h-12 bg-[#000080] rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-xl shrink-0">T</div>
           <div className="flex flex-col">
-            <h1 className="text-base md:text-lg font-black font-display text-[#000080] tracking-tight leading-none mb-1">
+            <h1 className="text-base md:text-lg font-black text-[#000080] tracking-tight leading-none mb-1">
               Projet du PDTI de la Province de Tétouan
             </h1>
             <p className="text-[10px] md:text-[11px] text-slate-500 font-bold italic tracking-tight leading-none uppercase">
@@ -141,19 +113,20 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Strategic Navigation Bar */}
-        <nav className="hidden lg:flex items-center border-[2.5px] border-[#000080] rounded-xl overflow-hidden bg-[#eaf7f9]/20 shadow-sm max-w-[60%]">
+        <nav className="hidden lg:flex items-center border-[2.5px] border-[#000080] rounded-xl overflow-hidden bg-slate-50/40 max-w-[65%]">
           {NAV_ITEMS.map((item, idx) => (
             <React.Fragment key={item.id}>
-              {idx > 0 && <div className="w-px h-6 bg-[#000080]/20"></div>}
+              {idx > 0 && <div className="w-[2px] h-6 bg-[#000080]/20" />}
               <button
                 onClick={() => {
                   setActiveSection(item.id);
                   setShowPresentation(false);
+                  setSelectedCommune(null);
+                  setSelectedPOI(null);
                 }}
-                className={`px-5 py-3 text-[10px] font-black uppercase tracking-wider transition-all leading-tight text-center ${
+                className={`px-5 py-3.5 text-[9px] font-black uppercase tracking-[0.05em] transition-all leading-tight text-center ${
                   activeSection === item.id 
-                    ? 'bg-[#000080] text-white shadow-inner' 
+                    ? 'bg-[#000080] text-white' 
                     : 'text-[#000080] hover:bg-[#000080]/5'
                 }`}
               >
@@ -165,31 +138,23 @@ const App: React.FC = () => {
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Persistent Sidebar */}
-        <aside className="w-80 lg:w-96 flex flex-col bg-white border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-500">
+        <aside className="w-85 lg:w-96 flex flex-col bg-white border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar shadow-lg">
           <div className="p-5 space-y-8">
-            
             <FeatureTabs 
-              categories={FEATURE_CATEGORIES} 
+              categories={Object.fromEntries(Object.entries(FEATURE_CATEGORIES).filter(([k]) => k !== 'LITTORAL')) as any} 
               currentCategory={currentCategory} 
-              onSelect={handleCategoryChange} 
+              onSelect={(k) => { setCurrentCategory(k); setSelectedPOI(null); setSelectedCommune(null); }} 
               counts={categoryCounts}
             />
-
             <FeatureList 
               filter={currentCategory}
-              onFeatureSelect={handlePOISelect} 
+              onFeatureSelect={(coords, name) => { setSelectedPOI({ coords, name }); setSelectedCommune(null); }} 
               activeFeatureName={selectedPOI?.name || null} 
             />
-
             <div className="pt-2 border-t border-slate-100">
-              <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-4 px-2">Indicateurs de Couverture</h3>
+              <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4 px-2">Indicateurs de Couverture</h3>
               <div className="grid grid-cols-1 gap-3">
-                <StatCard 
-                  label={stats.metric1Label} 
-                  value={stats.metric1Value} 
-                  icon={<div className="w-2 h-2 rounded-full" style={{ backgroundColor: activeColor }}></div>}
-                />
+                <StatCard label={stats.metric1Label} value={stats.metric1Value} icon={<div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#000080' }}></div>} />
                 <StatCard label={stats.metric2Label} value={stats.metric2Value} />
               </div>
             </div>
@@ -197,46 +162,43 @@ const App: React.FC = () => {
         </aside>
 
         <main className="flex-1 relative bg-slate-100 overflow-hidden">
-          {/* Main Visual Container */}
           <div className="absolute inset-0 z-0">
              {!showPresentation ? (
-                <div key={activeSection} className="w-full h-full p-4 lg:p-6 animate-in fade-in zoom-in-95 duration-700">
+                <div key={activeSection} className="w-full h-full p-4 lg:p-6 animate-in fade-in zoom-in-95 duration-500">
                   <DashboardMap 
                     communes={aggregatedCommunes} 
                     selectedCommune={selectedCommune}
                     selectedPOI={selectedPOI}
                     sectorConfig={FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES] || FEATURE_CATEGORIES.ALL}
-                    onCommuneSelect={handleCommuneSelect}
+                    onCommuneSelect={setSelectedCommune}
                   />
                 </div>
              ) : (
-                <div className="w-full h-full animate-in fade-in duration-700 bg-slate-900">
+                <div className="w-full h-full animate-in fade-in duration-500 bg-slate-900">
                   <ProvincePresentation onClose={() => setShowPresentation(false)} />
                 </div>
              )}
           </div>
 
-          {/* Persistent "Explore Detail" Button - Floating above map */}
           {!showPresentation && (
             <button 
               onClick={() => setShowPresentation(true)}
-              className="absolute top-10 right-10 z-[200] flex items-stretch shadow-2xl transition-all duration-500 hover:scale-[1.02] active:scale-95 group animate-in slide-in-from-top-4 duration-1000"
+              className="absolute top-10 right-10 z-[150] flex items-stretch shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-[1.02] active:scale-95 group animate-in slide-in-from-top-4 duration-700"
             >
-              <div className="bg-[#eaf7f9] border-[2.5px] border-[#000080] px-6 flex items-center justify-center transition-colors group-hover:bg-[#dcf3f6] shadow-lg">
+              <div className="bg-[#eaf7f9] border-[2.5px] border-[#000080] px-6 flex items-center justify-center transition-colors group-hover:bg-[#dcf3f6]">
                 <span className="text-[#cf2e2e] font-black text-3xl font-display">I</span>
               </div>
-              <div className="bg-white border-[2.5px] border-l-0 border-[#000080] px-8 py-5 transition-colors group-hover:bg-[#f8fafc] shadow-lg">
-                 <h2 className="text-sm md:text-base font-black tracking-tight text-[#000080] whitespace-nowrap uppercase font-display max-w-[300px] overflow-hidden truncate">
+              <div className="bg-white border-[2.5px] border-l-0 border-[#000080] px-8 py-5 flex items-center">
+                 <h2 className="text-[11px] md:text-[13px] font-black tracking-tight text-[#000080] whitespace-nowrap uppercase font-display max-w-[320px] truncate leading-tight">
                    {currentNavLabel}
                  </h2>
               </div>
             </button>
           )}
 
-          {/* Map Overlay Components */}
           {!showPresentation && (
-            <div className="absolute bottom-10 left-10 z-[100] bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-slate-200/50 w-80 animate-in slide-in-from-left-4 duration-500">
-               <h4 className="font-black text-slate-900 mb-5 uppercase tracking-tighter text-[12px] flex items-center gap-2">
+            <div className="absolute bottom-10 left-10 z-[100] bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-slate-200 w-80 animate-in slide-in-from-left-4 duration-500">
+               <h4 className="font-black text-[#000080] mb-5 uppercase tracking-tighter text-[11px] flex items-center gap-2">
                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
                  Légende Territoriale
                </h4>
@@ -245,28 +207,23 @@ const App: React.FC = () => {
                    { id: 'AEROPORT', lbl: "Aéroport" },
                    { id: 'BARRAGE', lbl: "Barrages" },
                    { id: 'ZI', lbl: "Zones Industrielles" },
-                   { id: 'CENTRE', lbl: "Centres Émergents" }
+                   { id: 'CENTRE', lbl: "Centres Émergents" },
+                   { id: 'LITTORAL', lbl: "Linéaire Littoral" }
                  ].map((item) => {
                    const config = FEATURE_CATEGORIES[item.id as keyof typeof FEATURE_CATEGORIES];
-                   const count = categoryCounts[item.id as keyof typeof categoryCounts];
                    return (
-                     <div key={item.id} className="flex items-center justify-between group transition-all duration-200 hover:translate-x-1">
+                     <div key={item.id} className="flex items-center justify-between group transition-all duration-200">
                        <div className="flex items-center gap-4">
-                         <div 
-                           className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-sm border transition-all"
-                           style={{ 
-                             backgroundColor: `${config.hex}10`, 
-                             color: config.hex, 
-                             borderColor: `${config.hex}30` 
-                           }}
-                         >
-                           {typeof config.icon === 'string' ? config.icon : <div className="w-6 h-6">{config.icon}</div>}
+                         <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl border" style={{ backgroundColor: `${config.hex}10`, color: config.hex, borderColor: `${config.hex}30` }}>
+                           {item.id === 'LITTORAL' ? (
+                             <div className="w-6 h-1 rounded-full" style={{ backgroundColor: config.hex }}></div>
+                           ) : (
+                             typeof config.icon === 'string' ? config.icon : <div className="w-5 h-5">{config.icon}</div>
+                           )}
                          </div>
-                         <span className="text-[12px] text-slate-700 font-bold">{item.lbl}</span>
+                         <span className="text-[12px] text-slate-700 font-bold uppercase tracking-tight">{item.lbl}</span>
                        </div>
-                       <span className="text-[11px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg">
-                         {count}
-                       </span>
+                       {item.id !== 'LITTORAL' && <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg">{categoryCounts[item.id]}</span>}
                      </div>
                    );
                  })}
@@ -275,7 +232,7 @@ const App: React.FC = () => {
           )}
 
           {selectedCommune && !showPresentation && (
-            <div className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[300] pointer-events-none flex flex-col">
+            <div className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[200] pointer-events-none flex flex-col">
                <div className="pointer-events-auto h-full">
                   <ProjectList commune={selectedCommune} onClose={() => setSelectedCommune(null)} />
                </div>
