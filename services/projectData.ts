@@ -10,7 +10,7 @@ import { Project } from '../types';
 const COMMUNE_CONFIG: Record<string, { lat: number; lng: number; officialName: string }> = {
   "Ain Lahsen": { lat: 35.5640, lng: -5.5737, officialName: "Ain Lahsan" },
   "Al Hamra": { lat: 35.3479, lng: -5.3532, officialName: "Al Hamra" },
-  "Al Kharoub": { lat: 35.4082, lng: -5.6818, officialName: "AL Kharroub" },
+  "AL Kharroub": { lat: 35.4082, lng: -5.6818, officialName: "AL Kharroub" },
   "Al Oued": { lat: 35.2704, lng: -5.3156, officialName: "Al Oued" },
   "Azla": { lat: 35.5336, lng: -5.2853, officialName: "Azla" },
   "Bghaghza": { lat: 35.4609, lng: -5.5991, officialName: "Bghaghza" },
@@ -18,15 +18,15 @@ const COMMUNE_CONFIG: Record<string, { lat: number; lng: number; officialName: s
   "Bni Idder": { lat: 35.4367, lng: -5.5296, officialName: "Bni Idder" },
   "Bni Leit": { lat: 35.3068, lng: -5.4340, officialName: "Bni Leit" },
   "Bni Said": { lat: 35.4207, lng: -5.1779, officialName: "Bni Said" },
-  "Dar Ben Karrich": { lat: 35.5264, lng: -5.4133, officialName: "Dar Bni Karrich" },
+  "Dar Bni Karrich": { lat: 35.5264, lng: -5.4133, officialName: "Dar Bni Karrich" },
   "Jbel Lahbib": { lat: 35.4610, lng: -5.7760, officialName: "Jbel Lahbib" },
   "Mallalienne": { lat: 35.6307, lng: -5.3762, officialName: "Mallalienne" },
-  "Oued Laou": { lat: 35.4576, lng: -5.1172, officialName: "Oued Laou (Mun.)" },
+  "Oued Laou": { lat: 35.4576, lng: -5.1172, officialName: "Oued Laou" },
   "Oulad Ali Mansour": { lat: 35.3653, lng: -5.2452, officialName: "Oulad Ali Mansour" },
   "Saddina": { lat: 35.6321, lng: -5.4397, officialName: "Saddina" },
-  "Sahtryiene": { lat: 35.4905, lng: -5.4731, officialName: "Sahtryine" },
-  "Souk Lkdim": { lat: 35.6088, lng: -5.5214, officialName: "Souk Kdim" },
-  "Tetouan": { lat: 35.5818, lng: -5.3414, officialName: "Tétouan (Mun.)" },
+  "Sahtryine": { lat: 35.4905, lng: -5.4731, officialName: "Sahtryine" },
+  "Souk Lkdim": { lat: 35.6088, lng: -5.5214, officialName: "Souk LKdim" },
+  "Tetouan": { lat: 35.5818, lng: -5.3414, officialName: "Tetouan" },
   "Zaitoune": { lat: 35.5110, lng: -5.3528, officialName: "Zaitoune" },
   "Zaouiat Sidi Kacem": { lat: 35.4767, lng: -5.2252, officialName: "Zaouiat Sidi Kacem" },
   "Zinat": { lat: 35.4287, lng: -5.3927, officialName: "Zinat" },
@@ -40,25 +40,25 @@ const COMMUNE_CONFIG: Record<string, { lat: number; lng: number; officialName: s
 const rawProjects = [
   // 1. Urban Center
   { id: 1, key: "Tetouan", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
-  
+
   // 2. Coastal North
   { id: 1, key: "Azla", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
 
   // 3. Coastal South
   { id: 1, key: "Oued Laou", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
-  
+
   // 4. Peri-urban (North/West of Tetouan)
   { id: 1, key: "Mallalienne", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
   { id: 1, key: "Saddina", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
   { id: 1, key: "Zaitoune", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
-  
+
   // 5. West Corridor (Road to Tangier)
   { id: 1, key: "Ain Lahsen", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
   { id: 1, key: "Bni Harchen", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
-  { id: 1, key: "Sahtryiene", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
+  { id: 1, key: "Sahtryine", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
 
   // 6. South Corridor (N2 towards Chefchaouen)
-  { id: 1, key: "Dar Ben Karrich", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
+  { id: 1, key: "Dar Bni Karrich", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
   { id: 1, key: "Zinat", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
   { id: 1, key: "Bni Said", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
   { id: 1, key: "Bni Idder", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
@@ -73,7 +73,7 @@ const rawProjects = [
   // 8. Far West / South West
   { id: 1, key: "Zaouiat Sidi Kacem", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
   { id: 1, key: "Bghaghza", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
-  { id: 1, key: "Al Kharoub", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
+  { id: 1, key: "AL Kharroub", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
   { id: 1, key: "Jbel Lahbib", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Sectorielle", cost: 3.0, jobs: 320, njt: 2700, duration: 12 },
 
   // --- Projects 2-35 ---
@@ -82,7 +82,7 @@ const rawProjects = [
   { id: 2, key: "Ain Lahsen", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Territoriale", cost: 1.5, jobs: 120, njt: 1200, duration: 12 },
   { id: 2, key: "Zaitoune", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Territoriale", cost: 1.5, jobs: 120, njt: 1200, duration: 12 },
   { id: 2, key: "Zinat", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Territoriale", cost: 1.5, jobs: 120, njt: 1200, duration: 12 },
-  
+
   { id: 3, key: "Tetouan", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Oued Laou", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Saddina", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
@@ -90,7 +90,7 @@ const rawProjects = [
   { id: 3, key: "Ain Lahsen", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Bni Harchen", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Bghaghza", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
-  { id: 3, key: "Al Kharoub", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
+  { id: 3, key: "AL Kharroub", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Bni Idder", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Bni Leit", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Al Oued", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
@@ -101,11 +101,11 @@ const rawProjects = [
   { id: 3, key: "Zaouiat Sidi Kacem", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Azla", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Al Hamra", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
-  { id: 3, key: "Dar Ben Karrich", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
-  { id: 3, key: "Sahtryiene", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
+  { id: 3, key: "Dar Bni Karrich", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
+  { id: 3, key: "Sahtryine", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Jbel Lahbib", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
   { id: 3, key: "Souk Lkdim", axis: "Axe01", sector: "Emploi", title: "Programme de Renforcement de l'Economie Solidaire Catégoriale", cost: 1.5, jobs: 140, njt: 1400, duration: 12 },
-  
+
   { id: 4, key: "Tetouan", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Oued Laou", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Saddina", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
@@ -113,7 +113,7 @@ const rawProjects = [
   { id: 4, key: "Ain Lahsen", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Bni Harchen", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Bghaghza", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
-  { id: 4, key: "Al Kharoub", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
+  { id: 4, key: "AL Kharroub", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Bni Idder", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Bni Leit", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Al Oued", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
@@ -124,30 +124,30 @@ const rawProjects = [
   { id: 4, key: "Zaouiat Sidi Kacem", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Azla", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Al Hamra", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
-  { id: 4, key: "Dar Ben Karrich", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
-  { id: 4, key: "Sahtryiene", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
+  { id: 4, key: "Dar Bni Karrich", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
+  { id: 4, key: "Sahtryine", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Jbel Lahbib", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
   { id: 4, key: "Souk Lkdim", axis: "Axe01", sector: "Emploi", title: "Programme de Promotion Auto-Entrepreneuriale TPE et Start Up", cost: 8.0, jobs: 200, njt: 8000, duration: 12 },
-  
+
   { id: 5, key: "Bghaghza", axis: "Axe01", sector: "Emploi", title: "Programme de Diversification des Systèmes de Production Agricole", cost: 35.0, jobs: 150, njt: 3000, duration: 12 },
   { id: 5, key: "Al Hamra", axis: "Axe01", sector: "Emploi", title: "Programme de Diversification des Systèmes de Production Agricole", cost: 35.0, jobs: 150, njt: 3000, duration: 12 },
-  
+
   { id: 6, key: "Tetouan", axis: "Axe01", sector: "Emploi", title: "Programme de Mise Niveau Zone Industrielle Route Martil", cost: 35.0, jobs: 80, njt: 2800, duration: 12 },
-  
+
   { id: 7, key: "Tetouan", axis: "Axe01", sector: "Emploi", title: "Programme d'Aménagement et Valorisation des Parcs Forestiers", cost: 45.0, jobs: 80, njt: 3200, duration: 12 },
   { id: 7, key: "Saddina", axis: "Axe01", sector: "Emploi", title: "Programme d'Aménagement et Valorisation des Parcs Forestiers", cost: 45.0, jobs: 80, njt: 3200, duration: 12 },
   { id: 7, key: "Mallalienne", axis: "Axe01", sector: "Emploi", title: "Programme d'Aménagement et Valorisation des Parcs Forestiers", cost: 45.0, jobs: 80, njt: 3200, duration: 12 },
   { id: 7, key: "Zaouiat Sidi Kacem", axis: "Axe01", sector: "Emploi", title: "Programme d'Aménagement et Valorisation des Parcs Forestiers", cost: 45.0, jobs: 80, njt: 3200, duration: 12 },
   { id: 7, key: "Azla", axis: "Axe01", sector: "Emploi", title: "Programme d'Aménagement et Valorisation des Parcs Forestiers", cost: 45.0, jobs: 80, njt: 3200, duration: 12 },
   { id: 7, key: "Zaitoune", axis: "Axe01", sector: "Emploi", title: "Programme d'Aménagement et Valorisation des Parcs Forestiers", cost: 45.0, jobs: 80, njt: 3200, duration: 12 },
-  
+
   { id: 8, key: "Oued Laou", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Saddina", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Mallalienne", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Ain Lahsen", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Bni Harchen", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Bghaghza", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
-  { id: 8, key: "Al Kharoub", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
+  { id: 8, key: "AL Kharroub", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Bni Idder", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Bni Leit", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Al Oued", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
@@ -158,17 +158,17 @@ const rawProjects = [
   { id: 8, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Azla", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Al Hamra", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
-  { id: 8, key: "Dar Ben Karrich", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
-  { id: 8, key: "Sahtryiene", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
+  { id: 8, key: "Dar Bni Karrich", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
+  { id: 8, key: "Sahtryine", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
   { id: 8, key: "Jbel Lahbib", axis: "Axe02", sector: "Education", title: "Programme de Réhabilitation des Etablissements Scolaires Milieu Rural", cost: 6.0, jobs: 60, njt: 3200, duration: 12 },
-  
+
   { id: 9, key: "Oued Laou", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Saddina", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Mallalienne", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Ain Lahsen", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Bni Harchen", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Bghaghza", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
-  { id: 9, key: "Al Kharoub", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
+  { id: 9, key: "AL Kharroub", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Bni Idder", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Bni Leit", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Al Oued", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
@@ -179,17 +179,17 @@ const rawProjects = [
   { id: 9, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Azla", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Al Hamra", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
-  { id: 9, key: "Dar Ben Karrich", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
-  { id: 9, key: "Sahtryiene", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
+  { id: 9, key: "Dar Bni Karrich", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
+  { id: 9, key: "Sahtryine", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
   { id: 9, key: "Jbel Lahbib", axis: "Axe02", sector: "Education", title: "Programme de Généralisation du Préscolaire Milieu Rural", cost: 3.5, jobs: 40, njt: 2100, duration: 12 },
-  
+
   { id: 10, key: "Oued Laou", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Saddina", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Mallalienne", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Ain Lahsen", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Bni Harchen", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Bghaghza", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
-  { id: 10, key: "Al Kharoub", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
+  { id: 10, key: "AL Kharroub", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Bni Idder", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Bni Leit", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Al Oued", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
@@ -200,17 +200,17 @@ const rawProjects = [
   { id: 10, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Azla", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Al Hamra", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
-  { id: 10, key: "Dar Ben Karrich", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
-  { id: 10, key: "Sahtryiene", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
+  { id: 10, key: "Dar Bni Karrich", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
+  { id: 10, key: "Sahtryine", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
   { id: 10, key: "Jbel Lahbib", axis: "Axe02", sector: "Education", title: "Programme de Renforcement du Transport Scolaire Milieu Rural", cost: 20.0, jobs: 120, njt: 3200, duration: 6 },
-  
+
   { id: 11, key: "Oued Laou", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Saddina", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Mallalienne", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Ain Lahsen", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Bni Harchen", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Bghaghza", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
-  { id: 11, key: "Al Kharoub", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
+  { id: 11, key: "AL Kharroub", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Bni Idder", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Bni Leit", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Al Oued", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
@@ -221,11 +221,11 @@ const rawProjects = [
   { id: 11, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Azla", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Al Hamra", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
-  { id: 11, key: "Dar Ben Karrich", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
-  { id: 11, key: "Sahtryiene", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
+  { id: 11, key: "Dar Bni Karrich", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
+  { id: 11, key: "Sahtryine", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Jbel Lahbib", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
   { id: 11, key: "Souk Lkdim", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Acquisition 2 Ambulances", cost: 5.0, jobs: 20, njt: 1800, duration: 6 },
-  
+
   { id: 12, key: "Tetouan", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Oued Laou", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Saddina", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
@@ -233,7 +233,7 @@ const rawProjects = [
   { id: 12, key: "Ain Lahsen", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Bni Harchen", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Bghaghza", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
-  { id: 12, key: "Al Kharoub", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
+  { id: 12, key: "AL Kharroub", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Bni Idder", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Bni Leit", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Al Oued", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
@@ -244,18 +244,18 @@ const rawProjects = [
   { id: 12, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Azla", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Al Hamra", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
-  { id: 12, key: "Dar Ben Karrich", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
-  { id: 12, key: "Sahtryiene", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
+  { id: 12, key: "Dar Bni Karrich", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
+  { id: 12, key: "Sahtryine", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Jbel Lahbib", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
   { id: 12, key: "Souk Lkdim", axis: "Axe02", sector: "Sante", title: "Programme Amélioration Transfert Médical - Equipements Ambulances", cost: 4.0, jobs: 20, njt: 2200, duration: 6 },
-  
+
   { id: 13, key: "Oued Laou", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Saddina", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Mallalienne", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Ain Lahsen", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Bni Harchen", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Bghaghza", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
-  { id: 13, key: "Al Kharoub", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
+  { id: 13, key: "AL Kharroub", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Bni Idder", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Bni Leit", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Al Oued", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
@@ -266,22 +266,22 @@ const rawProjects = [
   { id: 13, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Azla", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Al Hamra", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
-  { id: 13, key: "Dar Ben Karrich", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
-  { id: 13, key: "Sahtryiene", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
+  { id: 13, key: "Dar Bni Karrich", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
+  { id: 13, key: "Sahtryine", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Jbel Lahbib", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
   { id: 13, key: "Souk Lkdim", axis: "Axe02", sector: "Sante", title: "Programme Renforcement Suivi Médical Femmes Enceintes", cost: 5.0, jobs: 12, njt: 1600, duration: 8 },
-  
+
   { id: 14, key: "Zinat", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
   { id: 14, key: "Bni Leit", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
   { id: 14, key: "Al Oued", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
   { id: 14, key: "Souk Lkdim", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
   { id: 14, key: "Bni Harchen", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
-  { id: 14, key: "Al Kharoub", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
+  { id: 14, key: "AL Kharroub", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
   { id: 14, key: "Bni Said", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
   { id: 14, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
   { id: 14, key: "Azla", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
   { id: 14, key: "Zaitoune", axis: "Axe02", sector: "Sante", title: "Programme Aménagement Equipements Etablissements Santé", cost: 8.0, jobs: 60, njt: 1200, duration: 12 },
-  
+
   { id: 15, key: "Tetouan", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Oued Laou", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Saddina", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
@@ -289,7 +289,7 @@ const rawProjects = [
   { id: 15, key: "Ain Lahsen", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Bni Harchen", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Bghaghza", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
-  { id: 15, key: "Al Kharoub", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
+  { id: 15, key: "AL Kharroub", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Bni Idder", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Bni Leit", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Al Oued", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
@@ -300,18 +300,18 @@ const rawProjects = [
   { id: 15, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Azla", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Al Hamra", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
-  { id: 15, key: "Dar Ben Karrich", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
-  { id: 15, key: "Sahtryiene", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
+  { id: 15, key: "Dar Bni Karrich", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
+  { id: 15, key: "Sahtryine", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Jbel Lahbib", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
   { id: 15, key: "Souk Lkdim", axis: "Axe02", sector: "Sante", title: "Programme de Lancement de la Télémédecine", cost: 5.0, jobs: 45, njt: 2400, duration: 12 },
-  
+
   { id: 16, key: "Oued Laou", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Saddina", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Mallalienne", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Ain Lahsen", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Bni Harchen", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Bghaghza", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
-  { id: 16, key: "Al Kharoub", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
+  { id: 16, key: "AL Kharroub", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Bni Idder", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Bni Leit", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Al Oued", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
@@ -322,23 +322,23 @@ const rawProjects = [
   { id: 16, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Azla", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Al Hamra", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
-  { id: 16, key: "Dar Ben Karrich", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
-  { id: 16, key: "Sahtryiene", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
+  { id: 16, key: "Dar Bni Karrich", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
+  { id: 16, key: "Sahtryine", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
   { id: 16, key: "Jbel Lahbib", axis: "Axe02", sector: "Sante", title: "Programme de Caravanes Médicales Trimestrielles", cost: 4.0, jobs: 140, njt: 600, duration: 12 },
-  
-  { id: 17, key: "Dar Ben Karrich", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
-  { id: 17, key: "Sahtryiene", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
+
+  { id: 17, key: "Dar Bni Karrich", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
+  { id: 17, key: "Sahtryine", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Zinat", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Zaitoune", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Jbel Lahbib", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
-  { id: 17, key: "Al Kharoub", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
+  { id: 17, key: "AL Kharroub", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Bghaghza", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Bni Harchen", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Al Hamra", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Al Oued", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Bni Leit", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
   { id: 17, key: "Oulad Ali Mansour", axis: "Axe02", sector: "Sante", title: "Programme Mise en Service 3 Modules d'Accouchement", cost: 5.0, jobs: 30, njt: 400, duration: 12 },
-  
+
   { id: 18, key: "Tetouan", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Oued Laou", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Saddina", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
@@ -346,7 +346,7 @@ const rawProjects = [
   { id: 18, key: "Ain Lahsen", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Bni Harchen", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Bghaghza", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
-  { id: 18, key: "Al Kharoub", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
+  { id: 18, key: "AL Kharroub", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Bni Idder", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Bni Leit", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Al Oued", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
@@ -357,28 +357,28 @@ const rawProjects = [
   { id: 18, key: "Zaouiat Sidi Kacem", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Azla", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Al Hamra", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
-  { id: 18, key: "Dar Ben Karrich", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
-  { id: 18, key: "Sahtryiene", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
+  { id: 18, key: "Dar Bni Karrich", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
+  { id: 18, key: "Sahtryine", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Jbel Lahbib", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
   { id: 18, key: "Souk Lkdim", axis: "Axe02", sector: "Sante", title: "Programme de Contractualisation RH Médicales Spécialistes", cost: 5.0, jobs: 30, njt: 8640, duration: 12 },
-  
+
   { id: 19, key: "Oued Laou", axis: "Axe03", sector: "Eau", title: "Programme de Généralisation de l'AEP en Milieu Rural", cost: 38.0, jobs: 120, njt: 6000, duration: 12 },
   { id: 19, key: "Saddina", axis: "Axe03", sector: "Eau", title: "Programme de Généralisation de l'AEP en Milieu Rural", cost: 38.0, jobs: 120, njt: 6000, duration: 12 },
   { id: 19, key: "Mallalienne", axis: "Axe03", sector: "Eau", title: "Programme de Généralisation de l'AEP en Milieu Rural", cost: 38.0, jobs: 120, njt: 6000, duration: 12 },
   { id: 19, key: "Ain Lahsen", axis: "Axe03", sector: "Eau", title: "Programme de Généralisation de l'AEP en Milieu Rural", cost: 38.0, jobs: 120, njt: 6000, duration: 12 },
   { id: 19, key: "Bni Harchen", axis: "Axe03", sector: "Eau", title: "Programme de Généralisation de l'AEP en Milieu Rural", cost: 38.0, jobs: 120, njt: 6000, duration: 12 },
-  
+
   { id: 20, key: "Bni Said", axis: "Axe03", sector: "Eau", title: "Programme Construction Equipement Forages", cost: 8.0, jobs: 40, njt: 4500, duration: 12 },
   { id: 20, key: "Al Oued", axis: "Axe03", sector: "Eau", title: "Programme Construction Equipement Forages", cost: 8.0, jobs: 40, njt: 4500, duration: 12 },
   { id: 20, key: "Zaouiat Sidi Kacem", axis: "Axe03", sector: "Eau", title: "Programme Construction Equipement Forages", cost: 8.0, jobs: 40, njt: 4500, duration: 12 },
   { id: 20, key: "Jbel Lahbib", axis: "Axe03", sector: "Eau", title: "Programme Construction Equipement Forages", cost: 8.0, jobs: 40, njt: 4500, duration: 12 },
-  
+
   { id: 21, key: "Bni Said", axis: "Axe03", sector: "Eau", title: "Programme Construction Mtefias Abreuvement Cheptel", cost: 4.0, jobs: 20, njt: 3000, duration: 12 },
   { id: 21, key: "Al Oued", axis: "Axe03", sector: "Eau", title: "Programme Construction Mtefias Abreuvement Cheptel", cost: 4.0, jobs: 20, njt: 3000, duration: 12 },
   { id: 21, key: "Zaouiat Sidi Kacem", axis: "Axe03", sector: "Eau", title: "Programme Construction Mtefias Abreuvement Cheptel", cost: 4.0, jobs: 20, njt: 3000, duration: 12 },
   { id: 21, key: "Jbel Lahbib", axis: "Axe03", sector: "Eau", title: "Programme Construction Mtefias Abreuvement Cheptel", cost: 4.0, jobs: 20, njt: 3000, duration: 12 },
   { id: 21, key: "Zinat", axis: "Axe03", sector: "Eau", title: "Programme Construction Mtefias Abreuvement Cheptel", cost: 4.0, jobs: 20, njt: 3000, duration: 12 },
-  
+
   { id: 22, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Oued Laou", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Saddina", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
@@ -386,7 +386,7 @@ const rawProjects = [
   { id: 22, key: "Ain Lahsen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Bni Harchen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Bghaghza", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
-  { id: 22, key: "Al Kharoub", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
+  { id: 22, key: "AL Kharroub", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Bni Idder", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Bni Leit", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Al Oued", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
@@ -397,47 +397,47 @@ const rawProjects = [
   { id: 22, key: "Zaouiat Sidi Kacem", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Azla", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Al Hamra", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
-  { id: 22, key: "Dar Ben Karrich", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
-  { id: 22, key: "Sahtryiene", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
+  { id: 22, key: "Dar Bni Karrich", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
+  { id: 22, key: "Sahtryine", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Jbel Lahbib", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
   { id: 22, key: "Souk Lkdim", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création 2 Brigades Engins Travaux Pistes", cost: 32.0, jobs: 40, njt: 8000, duration: 8 },
-  
+
   { id: 23, key: "Oued Laou", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Saddina", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Mallalienne", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Ain Lahsen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Bni Harchen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Bghaghza", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
-  { id: 23, key: "Al Kharoub", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
+  { id: 23, key: "AL Kharroub", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Bni Idder", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Bni Leit", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Al Oued", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Oulad Ali Mansour", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
   { id: 23, key: "Zinat", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Sites Sportifs Aires Jeux", cost: 20.0, jobs: 120, njt: 3000, duration: 12 },
-  
+
   { id: 24, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Construction Parkings Tetouan", cost: 40.0, jobs: 60, njt: 8500, duration: 10 },
-  
+
   { id: 25, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Construction Blocs Sanitaires Tetouan", cost: 8.0, jobs: 40, njt: 3500, duration: 10 },
-  
+
   { id: 26, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Création Aménagement Arrêts Bus", cost: 25.0, jobs: 60, njt: 8000, duration: 12 },
-  
+
   { id: 27, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Aménagement HMR Ancienne Médina", cost: 12.0, jobs: 40, njt: 3000, duration: 12 },
-  
+
   { id: 28, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Réhabilitation Décharges Anarchiques", cost: 20.0, jobs: 25, njt: 1400, duration: 8 },
   { id: 28, key: "Oued Laou", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Réhabilitation Décharges Anarchiques", cost: 20.0, jobs: 25, njt: 1400, duration: 8 },
-  
+
   { id: 29, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Réhabilitation Ruelles Ancienne Médina", cost: 9.0, jobs: 45, njt: 3500, duration: 8 },
-  
+
   { id: 30, key: "Ain Lahsen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Mise Niveau Centres Emergents", cost: 32.0, jobs: 120, njt: 8000, duration: 12 },
   { id: 30, key: "Al Hamra", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Mise Niveau Centres Emergents", cost: 32.0, jobs: 120, njt: 8000, duration: 12 },
   { id: 30, key: "Zinat", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Mise Niveau Centres Emergents", cost: 32.0, jobs: 120, njt: 8000, duration: 12 },
   { id: 30, key: "Al Oued", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Mise Niveau Centres Emergents", cost: 32.0, jobs: 120, njt: 8000, duration: 12 },
-  
+
   { id: 31, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Réalisation Pont Oued Martil", cost: 82.0, jobs: 60, njt: 6000, duration: 12 },
-  
+
   { id: 32, key: "Oued Laou", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Mise Niveau du Littoral", cost: 16.0, jobs: 60, njt: 6500, duration: 12 },
   { id: 32, key: "Zaouiat Sidi Kacem", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Mise Niveau du Littoral", cost: 16.0, jobs: 60, njt: 6500, duration: 12 },
-  
+
   { id: 33, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Oued Laou", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Saddina", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
@@ -445,7 +445,7 @@ const rawProjects = [
   { id: 33, key: "Ain Lahsen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Bni Harchen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Bghaghza", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
-  { id: 33, key: "Al Kharoub", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
+  { id: 33, key: "AL Kharroub", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Bni Idder", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Bni Leit", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Al Oued", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
@@ -456,13 +456,13 @@ const rawProjects = [
   { id: 33, key: "Zaouiat Sidi Kacem", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Azla", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Al Hamra", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
-  { id: 33, key: "Dar Ben Karrich", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
-  { id: 33, key: "Sahtryiene", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
+  { id: 33, key: "Dar Bni Karrich", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
+  { id: 33, key: "Sahtryine", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Jbel Lahbib", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
   { id: 33, key: "Souk Lkdim", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Puissance Electrique", cost: 9.0, jobs: 20, njt: 800, duration: 8 },
-  
+
   { id: 34, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Renforcement Infrastructures Equipements", cost: 34.0, jobs: 180, njt: 12000, duration: 12 },
-  
+
   { id: 35, key: "Tetouan", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Oued Laou", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Saddina", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
@@ -470,7 +470,7 @@ const rawProjects = [
   { id: 35, key: "Ain Lahsen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Bni Harchen", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Bghaghza", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
-  { id: 35, key: "Al Kharoub", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
+  { id: 35, key: "AL Kharroub", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Bni Idder", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Bni Leit", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Al Oued", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
@@ -481,8 +481,8 @@ const rawProjects = [
   { id: 35, key: "Zaouiat Sidi Kacem", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Azla", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Al Hamra", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
-  { id: 35, key: "Dar Ben Karrich", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
-  { id: 35, key: "Sahtryiene", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
+  { id: 35, key: "Dar Bni Karrich", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
+  { id: 35, key: "Sahtryine", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Jbel Lahbib", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 },
   { id: 35, key: "Souk Lkdim", axis: "Axe04", sector: "MiseNiveauTerritoriale", title: "Programme Animation Multisectorielle Acquisition Minibus", cost: 1.5, jobs: 12, njt: 3600, duration: 6 }
 ];

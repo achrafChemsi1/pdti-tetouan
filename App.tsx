@@ -8,6 +8,7 @@ import { DashboardMap } from './components/DashboardMap';
 import { FeatureList } from './components/FeatureList';
 import { ProvincePresentation } from './components/ProvincePresentation';
 import { INFRASTRUCTURE_GEOJSON, CENTRES_EMERGENTS_GEOJSON } from './services/mapLayersData';
+import { COMMUNE_DATA } from './services/communeData';
 
 const DropIcon = () => (
   <svg viewBox="0 0 24 24" className="w-full h-full" fill="currentColor">
@@ -72,13 +73,17 @@ const App: React.FC = () => {
 
   const stats = useMemo(() => {
     const filtered = currentCategory === 'ALL' ? allPOI : allPOI.filter(p => p.type === currentCategory);
-    return { 
-      metric1Label: "Unités Recensées", 
-      metric1Value: filtered.length, 
-      metric2Label: currentCategory === 'BARRAGE' ? "Retenue (Hm3)" : "Points Géo", 
-      metric2Value: currentCategory === 'BARRAGE' ? 350 : new Set(filtered.map(f => f.NOM)).size 
+    return {
+      metric1Label: "Unités Recensées",
+      metric1Value: filtered.length,
+      metric2Label: currentCategory === 'BARRAGE' ? "Retenue (Hm3)" : "Points Géo",
+      metric2Value: currentCategory === 'BARRAGE' ? 350 : new Set(filtered.map(f => f.NOM)).size
     };
   }, [allPOI, currentCategory]);
+
+  const totalPopulation = useMemo(() => {
+    return Object.values(COMMUNE_DATA).reduce((sum, c) => sum + c.population, 0);
+  }, []);
 
   const aggregatedCommunes = useMemo(() => {
     const map = new Map<string, CommuneAggregated>();
@@ -86,7 +91,8 @@ const App: React.FC = () => {
       if (!map.has(proj.commune_name)) {
         map.set(proj.commune_name, {
           name: proj.commune_name, lat: proj.latitude, lng: proj.longitude,
-          projects: [], totalCost: 0, totalJobs: 0, totalNJT: 0
+          projects: [], totalCost: 0, totalJobs: 0, totalNJT: 0,
+          population: COMMUNE_DATA[proj.commune_name.toUpperCase()]?.population
         });
       }
       const comm = map.get(proj.commune_name)!;
@@ -124,11 +130,10 @@ const App: React.FC = () => {
                   setSelectedCommune(null);
                   setSelectedPOI(null);
                 }}
-                className={`px-5 py-3.5 text-[9px] font-black uppercase tracking-[0.05em] transition-all leading-tight text-center ${
-                  activeSection === item.id 
-                    ? 'bg-[#000080] text-white' 
-                    : 'text-[#000080] hover:bg-[#000080]/5'
-                }`}
+                className={`px-5 py-3.5 text-[9px] font-black uppercase tracking-[0.05em] transition-all leading-tight text-center ${activeSection === item.id
+                  ? 'bg-[#000080] text-white'
+                  : 'text-[#000080] hover:bg-[#000080]/5'
+                  }`}
               >
                 {item.label}
               </button>
@@ -140,22 +145,23 @@ const App: React.FC = () => {
       <div className="flex flex-1 overflow-hidden relative">
         <aside className="w-85 lg:w-96 flex flex-col bg-white border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar shadow-lg">
           <div className="p-5 space-y-8">
-            <FeatureTabs 
-              categories={Object.fromEntries(Object.entries(FEATURE_CATEGORIES).filter(([k]) => k !== 'LITTORAL')) as any} 
-              currentCategory={currentCategory} 
-              onSelect={(k) => { setCurrentCategory(k); setSelectedPOI(null); setSelectedCommune(null); }} 
+            <FeatureTabs
+              categories={Object.fromEntries(Object.entries(FEATURE_CATEGORIES).filter(([k]) => k !== 'LITTORAL')) as any}
+              currentCategory={currentCategory}
+              onSelect={(k) => { setCurrentCategory(k); setSelectedPOI(null); setSelectedCommune(null); }}
               counts={categoryCounts}
             />
-            <FeatureList 
+            <FeatureList
               filter={currentCategory}
-              onFeatureSelect={(coords, name) => { setSelectedPOI({ coords, name }); setSelectedCommune(null); }} 
-              activeFeatureName={selectedPOI?.name || null} 
+              onFeatureSelect={(coords, name) => { setSelectedPOI({ coords, name }); setSelectedCommune(null); }}
+              activeFeatureName={selectedPOI?.name || null}
             />
             <div className="pt-2 border-t border-slate-100">
               <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4 px-2">Indicateurs de Couverture</h3>
               <div className="grid grid-cols-1 gap-3">
                 <StatCard label={stats.metric1Label} value={stats.metric1Value} icon={<div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#000080' }}></div>} />
                 <StatCard label={stats.metric2Label} value={stats.metric2Value} />
+                <StatCard label="Population Totale" value={totalPopulation.toLocaleString('fr-FR')} icon="👥" />
               </div>
             </div>
           </div>
@@ -163,25 +169,25 @@ const App: React.FC = () => {
 
         <main className="flex-1 relative bg-slate-100 overflow-hidden">
           <div className="absolute inset-0 z-0">
-             {!showPresentation ? (
-                <div key={activeSection} className="w-full h-full p-4 lg:p-6 animate-in fade-in zoom-in-95 duration-500">
-                  <DashboardMap 
-                    communes={aggregatedCommunes} 
-                    selectedCommune={selectedCommune}
-                    selectedPOI={selectedPOI}
-                    sectorConfig={FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES] || FEATURE_CATEGORIES.ALL}
-                    onCommuneSelect={setSelectedCommune}
-                  />
-                </div>
-             ) : (
-                <div className="w-full h-full animate-in fade-in duration-500 bg-slate-900">
-                  <ProvincePresentation onClose={() => setShowPresentation(false)} />
-                </div>
-             )}
+            {!showPresentation ? (
+              <div key={activeSection} className="w-full h-full p-4 lg:p-6 animate-in fade-in zoom-in-95 duration-500">
+                <DashboardMap
+                  communes={aggregatedCommunes}
+                  selectedCommune={selectedCommune}
+                  selectedPOI={selectedPOI}
+                  sectorConfig={FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES] || FEATURE_CATEGORIES.ALL}
+                  onCommuneSelect={setSelectedCommune}
+                />
+              </div>
+            ) : (
+              <div className="w-full h-full animate-in fade-in duration-500 bg-slate-900">
+                <ProvincePresentation onClose={() => setShowPresentation(false)} />
+              </div>
+            )}
           </div>
 
           {!showPresentation && (
-            <button 
+            <button
               onClick={() => setShowPresentation(true)}
               className="absolute top-10 right-10 z-[150] flex items-stretch shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-[1.02] active:scale-95 group animate-in slide-in-from-top-4 duration-700"
             >
@@ -189,55 +195,49 @@ const App: React.FC = () => {
                 <span className="text-[#cf2e2e] font-black text-3xl font-display">I</span>
               </div>
               <div className="bg-white border-[2.5px] border-l-0 border-[#000080] px-8 py-5 flex items-center">
-                 <h2 className="text-[11px] md:text-[13px] font-black tracking-tight text-[#000080] whitespace-nowrap uppercase font-display max-w-[320px] truncate leading-tight">
-                   {currentNavLabel}
-                 </h2>
+                <h2 className="text-[11px] md:text-[13px] font-black tracking-tight text-[#000080] whitespace-nowrap uppercase font-display max-w-[320px] truncate leading-tight">
+                  {currentNavLabel}
+                </h2>
               </div>
             </button>
           )}
 
           {!showPresentation && (
             <div className="absolute bottom-10 left-10 z-[100] bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-slate-200 w-80 animate-in slide-in-from-left-4 duration-500">
-               <h4 className="font-black text-[#000080] mb-5 uppercase tracking-tighter text-[11px] flex items-center gap-2">
-                 <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-                 Légende Territoriale
-               </h4>
-               <div className="grid grid-cols-1 gap-3">
-                 {[
-                   { id: 'AEROPORT', lbl: "Aéroport" },
-                   { id: 'BARRAGE', lbl: "Barrages" },
-                   { id: 'ZI', lbl: "Zones Industrielles" },
-                   { id: 'CENTRE', lbl: "Centres Émergents" },
-                   { id: 'LITTORAL', lbl: "Linéaire Littoral" }
-                 ].map((item) => {
-                   const config = FEATURE_CATEGORIES[item.id as keyof typeof FEATURE_CATEGORIES];
-                   return (
-                     <div key={item.id} className="flex items-center justify-between group transition-all duration-200">
-                       <div className="flex items-center gap-4">
-                         <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl border" style={{ backgroundColor: `${config.hex}10`, color: config.hex, borderColor: `${config.hex}30` }}>
-                           {item.id === 'LITTORAL' ? (
-                             <div className="w-6 h-1 rounded-full" style={{ backgroundColor: config.hex }}></div>
-                           ) : (
-                             typeof config.icon === 'string' ? config.icon : <div className="w-5 h-5">{config.icon}</div>
-                           )}
-                         </div>
-                         <span className="text-[12px] text-slate-700 font-bold uppercase tracking-tight">{item.lbl}</span>
-                       </div>
-                       {item.id !== 'LITTORAL' && <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg">{categoryCounts[item.id]}</span>}
-                     </div>
-                   );
-                 })}
-               </div>
+              <h4 className="font-black text-[#000080] mb-5 uppercase tracking-tighter text-[11px] flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                Légende Territoriale
+              </h4>
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  { id: 'AEROPORT', lbl: "Aéroport" },
+                  { id: 'BARRAGE', lbl: "Barrages" },
+                  { id: 'ZI', lbl: "Zones Industrielles" },
+                  { id: 'CENTRE', lbl: "Centres Émergents" },
+                  { id: 'LITTORAL', lbl: "Linéaire Littoral" }
+                ].map((item) => {
+                  const config = FEATURE_CATEGORIES[item.id as keyof typeof FEATURE_CATEGORIES];
+                  return (
+                    <div key={item.id} className="flex items-center justify-between group transition-all duration-200">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl border" style={{ backgroundColor: `${config.hex}10`, color: config.hex, borderColor: `${config.hex}30` }}>
+                          {item.id === 'LITTORAL' ? (
+                            <div className="w-6 h-1 rounded-full" style={{ backgroundColor: config.hex }}></div>
+                          ) : (
+                            typeof config.icon === 'string' ? config.icon : <div className="w-5 h-5">{config.icon}</div>
+                          )}
+                        </div>
+                        <span className="text-[12px] text-slate-700 font-bold uppercase tracking-tight">{item.lbl}</span>
+                      </div>
+                      {item.id !== 'LITTORAL' && <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg">{categoryCounts[item.id]}</span>}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {selectedCommune && !showPresentation && (
-            <div className="absolute top-4 right-4 bottom-4 w-full md:w-96 z-[200] pointer-events-none flex flex-col">
-               <div className="pointer-events-auto h-full">
-                  <ProjectList commune={selectedCommune} onClose={() => setSelectedCommune(null)} />
-               </div>
-            </div>
-          )}
+
         </main>
       </div>
     </div>

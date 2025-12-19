@@ -49,12 +49,12 @@ const DAM_ICON_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
   </svg>
 `);
 
-export const DashboardMap: React.FC<DashboardMapProps> = ({ 
-  communes, 
-  selectedCommune, 
+export const DashboardMap: React.FC<DashboardMapProps> = ({
+  communes,
+  selectedCommune,
   selectedPOI,
-  sectorConfig, 
-  onCommuneSelect 
+  sectorConfig,
+  onCommuneSelect
 }) => {
   const mapElement = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
@@ -63,29 +63,34 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
   const provinceFeatures = useMemo(() => getTetouanProvinceGeoJSON(), []);
 
   const getDecoupageStyle = (feature: any, isHovered: boolean) => {
-    const communeName = feature.get('Nom commun');
+    const communeName = feature.get('name') || feature.get('Nom commun');
+    const population = feature.get('population');
     const isSelected = selectedCommune?.name.toUpperCase() === communeName?.toUpperCase();
-    
+
+    const labelText = isSelected && population
+      ? `${communeName}\nPop: ${population.toLocaleString('fr-FR')}`
+      : communeName;
+
     return [
       new Style({
-        stroke: new Stroke({ 
-          color: isSelected ? sectorConfig.hex : 'rgba(0, 0, 128, 0.15)', 
-          width: isSelected ? 3.5 : 1.2 
+        stroke: new Stroke({
+          color: isSelected ? sectorConfig.hex : 'rgba(0, 0, 128, 0.6)',
+          width: isSelected ? 3.5 : 1.5
         }),
         zIndex: isSelected ? 10 : 1
       }),
       new Style({
-        fill: new Fill({ 
-          color: isSelected ? `${sectorConfig.hex}25` : (isHovered ? 'rgba(0, 0, 128, 0.05)' : 'rgba(255, 255, 255, 0.15)') 
+        fill: new Fill({
+          color: isSelected ? `${sectorConfig.hex}25` : (isHovered ? 'rgba(0, 0, 128, 0.1)' : 'rgba(255, 255, 255, 0.5)')
         }),
-        text: isSelected || isHovered ? new Text({
-          text: communeName,
-          font: 'bold 11px "Inter", sans-serif',
+        text: new Text({
+          text: labelText,
+          font: isSelected ? 'bold 12px "Inter", sans-serif' : '500 10px "Inter", sans-serif',
           fill: new Fill({ color: '#000080' }),
-          stroke: new Stroke({ color: 'rgba(255, 255, 255, 0.8)', width: 3 }),
-          offsetY: -10,
+          stroke: new Stroke({ color: 'rgba(255, 255, 255, 0.9)', width: 3 }),
+          offsetY: isSelected ? -10 : 0,
           overflow: true
-        }) : undefined,
+        }),
         zIndex: isSelected ? 11 : 2
       })
     ];
@@ -98,10 +103,12 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
   ];
 
   useEffect(() => {
-    if (!mapElement.current || mapRef.current) return;
+    if (!mapElement.current || mapRef.current) {
+      return;
+    }
 
-    const vectorSource = new VectorSource({ 
-      features: new GeoJSON().readFeatures(provinceFeatures, { featureProjection: 'EPSG:3857' }) 
+    const vectorSource = new VectorSource({
+      features: new GeoJSON().readFeatures(provinceFeatures, { featureProjection: 'EPSG:3857' })
     });
     vectorSourceRef.current = vectorSource;
 
@@ -113,6 +120,9 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
 
     topoLayer.on('prerender', (event) => {
       const ctx = event.context as CanvasRenderingContext2D;
+      const eventMap = event.target.get('map') || mapRef.current;
+      if (!eventMap) return;
+
       ctx.save();
       ctx.beginPath();
       vectorSource.getFeatures().forEach((feature) => {
@@ -120,7 +130,7 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
         if (geometry && geometry.getType() === 'Polygon') {
           const coords = (geometry as any).getCoordinates()[0];
           coords.forEach((coord: number[], i: number) => {
-            const pixel = map.getPixelFromCoordinate(coord);
+            const pixel = eventMap.getPixelFromCoordinate(coord);
             const renderPixel = getRenderPixel(event, pixel);
             if (i === 0) ctx.moveTo(renderPixel[0], renderPixel[1]);
             else ctx.lineTo(renderPixel[0], renderPixel[1]);
@@ -138,7 +148,7 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
     const map = new Map({
       target: mapElement.current,
       // ACTIVATE ZOOM ONLY, KEEP POSITION FIXED (Disable DragPan)
-      interactions: defaultInteractions({ 
+      interactions: defaultInteractions({
         dragPan: false, // Blocks moving the map around
         mouseWheelZoom: true,
         doubleClickZoom: true,
@@ -147,41 +157,45 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
       layers: [
         topoLayer,
         new VectorLayer({ source: vectorSource, style: (f) => getDecoupageStyle(f, false), zIndex: 10 }),
-        new VectorLayer({ 
-          source: new VectorSource({ features: new GeoJSON().readFeatures(LITTORAL_GEOJSON, { featureProjection: 'EPSG:3857' }) }), 
-          style: littoralStyle, 
-          zIndex: 40 
+        new VectorLayer({
+          source: new VectorSource({ features: new GeoJSON().readFeatures(LITTORAL_GEOJSON, { featureProjection: 'EPSG:3857' }) }),
+          style: littoralStyle,
+          zIndex: 40
         }),
-        new VectorLayer({ source: new VectorSource({ features: new GeoJSON().readFeatures(CENTRES_EMERGENTS_GEOJSON, { featureProjection: 'EPSG:3857' }) }), style: (f) => [
-          new Style({ image: new Icon({ src: CENTRE_ICON_SVG, scale: 0.85 }), zIndex: 100 }),
-          new Style({ text: new Text({ text: f.get('NOM'), font: '800 9px "Inter"', fill: new Fill({ color: '#059669' }), stroke: new Stroke({ color: '#fff', width: 3 }), offsetY: 18 }), zIndex: 101 })
-        ], zIndex: 35 }),
-        new VectorLayer({ source: new VectorSource({ features: new GeoJSON().readFeatures(INFRASTRUCTURE_GEOJSON, { featureProjection: 'EPSG:3857' }) }), style: (f) => {
-          const type = f.get('type');
-          let src = DAM_ICON_SVG;
-          let color = '#2563eb';
-          if (type === 'AEROPORT') { src = PLANE_ICON_SVG; color = '#4f46e5'; }
-          if (type === 'ZI') { src = FACTORY_ICON_SVG; color = '#d97706'; }
-          return [
-            new Style({ image: new Icon({ src, scale: 0.75 }), zIndex: 80 }),
-            new Style({ text: new Text({ text: f.get('NOM'), font: 'bold 9px "Inter"', fill: new Fill({ color }), stroke: new Stroke({ color: '#fff', width: 3 }), offsetY: -20 }), zIndex: 81 })
-          ];
-        }, zIndex: 45 })
+        new VectorLayer({
+          source: new VectorSource({ features: new GeoJSON().readFeatures(CENTRES_EMERGENTS_GEOJSON, { featureProjection: 'EPSG:3857' }) }), style: (f) => [
+            new Style({ image: new Icon({ src: CENTRE_ICON_SVG, scale: 0.85 }), zIndex: 100 }),
+            new Style({ text: new Text({ text: f.get('NOM'), font: '800 9px "Inter"', fill: new Fill({ color: '#059669' }), stroke: new Stroke({ color: '#fff', width: 3 }), offsetY: 18 }), zIndex: 101 })
+          ], zIndex: 35
+        }),
+        new VectorLayer({
+          source: new VectorSource({ features: new GeoJSON().readFeatures(INFRASTRUCTURE_GEOJSON, { featureProjection: 'EPSG:3857' }) }), style: (f) => {
+            const type = f.get('type');
+            let src = DAM_ICON_SVG;
+            let color = '#2563eb';
+            if (type === 'AEROPORT') { src = PLANE_ICON_SVG; color = '#4f46e5'; }
+            if (type === 'ZI') { src = FACTORY_ICON_SVG; color = '#d97706'; }
+            return [
+              new Style({ image: new Icon({ src, scale: 0.75 }), zIndex: 80 }),
+              new Style({ text: new Text({ text: f.get('NOM'), font: 'bold 9px "Inter"', fill: new Fill({ color }), stroke: new Stroke({ color: '#fff', width: 3 }), offsetY: -20 }), zIndex: 81 })
+            ];
+          }, zIndex: 45
+        })
       ],
-      view: new View({ 
-        center: fromLonLat(PROVINCE_CENTER), 
-        zoom: PROVINCE_ZOOM, 
-        minZoom: 10, 
-        maxZoom: 16 
+      view: new View({
+        center: fromLonLat(PROVINCE_CENTER),
+        zoom: PROVINCE_ZOOM,
+        minZoom: 10,
+        maxZoom: 16
       })
     });
 
     mapRef.current = map;
-    
+
     map.on('click', (e) => {
       let found = false;
       map.forEachFeatureAtPixel(e.pixel, (f) => {
-        const name = f.get('Nom commun');
+        const name = f.get('name') || f.get('Nom commun'); // Fix: Check both properties
         if (!name) return;
         const matching = communes.find(c => c.name.toUpperCase() === name.toUpperCase());
         if (matching) {
@@ -190,7 +204,7 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
         }
         return true;
       }, { layerFilter: (l) => l.getZIndex() === 10 });
-      
+
       if (!found) onCommuneSelect(null);
     });
 
@@ -200,12 +214,23 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
       map.getTargetElement().style.cursor = hit ? 'pointer' : 'default';
     });
 
-    return () => map.setTarget(undefined);
+    return () => {
+      map.setTarget(undefined);
+      mapRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
     if (!vectorSourceRef.current) return;
-    vectorSourceRef.current.getFeatures().forEach(f => f.setStyle(getDecoupageStyle(f, false)));
+
+    vectorSourceRef.current.getFeatures().forEach(f => {
+      const cName = f.get('name') || f.get('Nom commun');
+      const matchingCommune = communes.find(c => c.name.toUpperCase() === cName?.toUpperCase());
+      if (matchingCommune) {
+        f.set('population', matchingCommune.population);
+      }
+      f.setStyle(getDecoupageStyle(f, false));
+    });
   }, [communes, sectorConfig, selectedCommune]);
 
   useEffect(() => {
@@ -213,31 +238,31 @@ export const DashboardMap: React.FC<DashboardMapProps> = ({
     const view = mapRef.current.getView();
 
     if (selectedCommune) {
-      view.animate({ 
-        center: fromLonLat([selectedCommune.lng, selectedCommune.lat]), 
-        zoom: COMMUNE_ZOOM, 
+      view.animate({
+        center: fromLonLat([selectedCommune.lng, selectedCommune.lat]),
+        zoom: COMMUNE_ZOOM,
         duration: 1200,
-        easing: (t) => t * (2 - t) 
+        easing: (t) => t * (2 - t)
       });
     } else if (selectedPOI) {
-      view.animate({ 
-        center: fromLonLat(selectedPOI.coords), 
-        zoom: 14, 
-        duration: 1200 
+      view.animate({
+        center: fromLonLat(selectedPOI.coords),
+        zoom: 14,
+        duration: 1200
       });
     } else {
-      view.animate({ 
-        center: fromLonLat(PROVINCE_CENTER), 
-        zoom: PROVINCE_ZOOM, 
-        duration: 1200 
+      view.animate({
+        center: fromLonLat(PROVINCE_CENTER),
+        zoom: PROVINCE_ZOOM,
+        duration: 1200
       });
     }
   }, [selectedCommune, selectedPOI]);
 
   return (
-    <div 
-      ref={mapElement} 
-      className="w-full h-full rounded-2xl shadow-[0_10px_50px_rgba(0,0,0,0.12)] border border-slate-200 overflow-hidden bg-[#eaf7f9]" 
+    <div
+      ref={mapElement}
+      className="w-full h-full rounded-2xl shadow-[0_10px_50px_rgba(0,0,0,0.12)] border border-slate-200 overflow-hidden bg-[#eaf7f9]"
     />
   );
 };

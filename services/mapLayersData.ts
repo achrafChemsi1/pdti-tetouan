@@ -45,7 +45,7 @@ export const CENTRES_EMERGENTS_GEOJSON = {
   "features": [
     { "type": "Feature", "properties": { "id": 7, "NOM": "AIN LAHCEN" }, "geometry": { "type": "Point", "coordinates": [-5.618706767595842, 35.578692777879795] } },
     { "type": "Feature", "properties": { "id": 8, "NOM": "SOUK LAKDIM" }, "geometry": { "type": "Point", "coordinates": [-5.512649869237741, 35.604646660187285] } },
-    { "type": "Feature", "properties": { "id": 9, "NOM": "BEN KARRICH" }, "geometry": { "type": "Point", "coordinates": [-5.425315263771879, 35.51187496464496] } },
+    { "type": "Feature", "properties": { "id": 9, "NOM": "DAR BEN KARRICH" }, "geometry": { "type": "Point", "coordinates": [-5.425315263771879, 35.51187496464496] } },
     { "type": "Feature", "properties": { "id": 10, "NOM": "ZAITOUNE" }, "geometry": { "type": "Point", "coordinates": [-5.351619575597199, 35.540759657546324] } },
     { "type": "Feature", "properties": { "id": 11, "NOM": "AZLA" }, "geometry": { "type": "Point", "coordinates": [-5.27035997259294, 35.563446761350811] } },
     { "type": "Feature", "properties": { "id": 12, "NOM": "ZAOUIAT SIDI KACEM" }, "geometry": { "type": "Point", "coordinates": [-5.231323984030414, 35.521601339795488] } },

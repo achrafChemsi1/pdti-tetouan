@@ -15,6 +15,11 @@ export const ProjectList: React.FC<ProjectListProps> = ({ commune, onClose }) =>
         <div>
           <h2 className="text-2xl font-bold text-slate-800 font-display">{commune.name}</h2>
           <p className="text-brand-600 text-xs font-bold uppercase tracking-widest">{commune.projects.length} Projets Identifiés</p>
+          {commune.population && (
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+              Population: {commune.population.toLocaleString('fr-FR')}
+            </p>
+          )}
         </div>
         <button onClick={onClose} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -30,7 +35,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({ commune, onClose }) =>
               </span>
               <h3 className="font-bold text-slate-800 text-sm leading-tight group-hover:text-brand-700">{project.project_title}</h3>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-slate-50/50 border border-slate-50">
                 <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Investissement</p>

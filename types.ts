@@ -24,6 +24,8 @@ export interface CommuneAggregated {
   totalCost: number;
   totalJobs: number;
   totalNJT: number;
+  // Fix: Added optional population property to track demographic data per commune
+  population?: number;
 }
 
 export enum SectorType {
