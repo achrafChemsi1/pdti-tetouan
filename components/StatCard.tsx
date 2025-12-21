@@ -9,16 +9,16 @@ interface StatCardProps {
 
 export const StatCard: React.FC<StatCardProps> = ({ label, value, suffix, icon }) => {
   return (
-    <div className="bg-white/80 backdrop-blur-md rounded-xl p-5 shadow-sm border border-slate-100 flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:border-brand-200 group">
+    <div className="bg-slate-800/50 backdrop-blur-md rounded-2xl p-5 shadow-lg border border-white/5 flex items-center justify-between transition-all duration-300 hover:border-white/20 group">
       <div>
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
-        <p className="text-3xl font-bold text-slate-800 font-display group-hover:text-brand-600 transition-colors">
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{label}</p>
+        <p className="text-3xl font-bold text-white font-display">
           {value}
-          {suffix && <span className="text-lg text-slate-400 font-medium ml-1">{suffix}</span>}
+          {suffix && <span className="text-lg text-slate-600 font-medium ml-1">{suffix}</span>}
         </p>
       </div>
       {icon && (
-        <div className="bg-slate-50 p-3 rounded-xl text-slate-400 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+        <div className="bg-white/5 p-3 rounded-xl text-slate-400 group-hover:text-white transition-colors">
           {icon}
         </div>
       )}

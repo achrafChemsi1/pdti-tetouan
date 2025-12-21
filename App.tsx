@@ -1,245 +1,241 @@
-import React, { useState, useMemo } from 'react';
-import { CommuneAggregated } from './types';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { Project, SectorType, CommuneAggregated, SectorConfig } from './types';
 import { projectsData } from './services/projectData';
 import { StatCard } from './components/StatCard';
-import { FeatureTabs } from './components/FeatureTabs';
+import { SectorTabs } from './components/SectorTabs';
 import { ProjectList } from './components/ProjectList';
 import { DashboardMap } from './components/DashboardMap';
-import { FeatureList } from './components/FeatureList';
-import { ProvincePresentation } from './components/ProvincePresentation';
-import { INFRASTRUCTURE_GEOJSON, CENTRES_EMERGENTS_GEOJSON } from './services/mapLayersData';
-import { COMMUNE_DATA } from './services/communeData';
+import { InvestmentChart } from './components/InvestmentChart';
+import { SectoralOverview } from './components/SectoralOverview';
 
-const DropIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-full h-full" fill="currentColor">
-    <path d="M12 2.5s-7 8.5-7 12.5a7 7 0 0 0 14 0c0-4-7-12.5-7-12.5z" />
-    <path d="M9 15c0-1.5 1-2.5 2-2.5" fill="none" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.8" />
-  </svg>
-);
-
-const MedicalKitIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-full h-full" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="7" width="18" height="13" rx="2" />
-    <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M12 11v5M9.5 13.5h5" />
-  </svg>
-);
-
-const FEATURE_CATEGORIES = {
-  ALL: { label: "Tout le Répertoire", icon: "🗺️", color: "text-slate-500", hex: "#64748b" },
-  AEROPORT: { label: "Aéroports", icon: "✈️", color: "text-indigo-600", hex: "#4f46e5" },
-  BARRAGE: { label: "Barrages", icon: <DropIcon />, color: "text-blue-600", hex: "#2563eb" },
-  ZI: { label: "Zones Industrielles", icon: "🏭", color: "text-amber-600", hex: "#d97706" },
-  CENTRE: { label: "Centres Émergents", icon: <MedicalKitIcon />, color: "text-emerald-600", hex: "#059669" },
-  LITTORAL: { label: "Linéaire Littoral", icon: "〰️", color: "text-blue-700", hex: "#1d4ed8" }
+// --- Configurations ---
+const SECTOR_CONFIG: Record<SectorType, SectorConfig> = {
+  [SectorType.Emploi]: { label: "Emploi", icon: "💼", color: "text-indigo-600", hex: "#6366f1" },
+  [SectorType.Education]: { label: "Éducation", icon: "🎓", color: "text-pink-500", hex: "#ec4899" },
+  [SectorType.Sante]: { label: "Santé", icon: "🏥", color: "text-cyan-500", hex: "#22d3ee" },
+  [SectorType.Eau]: { label: "Eau", icon: "💧", color: "text-blue-500", hex: "#3b82f6" },
+  [SectorType.MiseNiveauTerritoriale]: { label: "Mise à Niveau", icon: "🏗️", color: "text-amber-500", hex: "#f59e0b" },
 };
 
-type SectionId = 'diagnostics' | 'priorities' | 'synthesis';
+const ALL_SECTORS_KEY = 'Tous';
+const ALL_SECTORS_CONFIG: SectorConfig = {
+  label: "Global",
+  icon: "🌍",
+  color: "text-slate-400",
+  hex: "#94a3b8" 
+};
 
-interface NavItem {
-  id: SectionId;
-  label: string;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { id: 'diagnostics', label: 'DIAGNOSTICS ET FORMULATION DES PROJETS PAR AXE' },
-  { id: 'priorities', label: 'PROJETS PRIORITAIRES AU TITRE DE L’ANNÉE 2026' },
-  { id: 'synthesis', label: 'SYNTHÈSE PROVINCIALE' }
-];
+const DISPLAY_SECTOR_CONFIG: Record<string, SectorConfig> = {
+  [ALL_SECTORS_KEY]: ALL_SECTORS_CONFIG,
+  ...SECTOR_CONFIG
+};
 
 const App: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<SectionId>('diagnostics');
-  const [currentCategory, setCurrentCategory] = useState<string>('ALL');
-  const [selectedCommune, setSelectedCommune] = useState<CommuneAggregated | null>(null);
-  const [selectedPOI, setSelectedPOI] = useState<{ coords: [number, number]; name: string } | null>(null);
-  const [showPresentation, setShowPresentation] = useState<boolean>(false);
+  const [currentSector, setCurrentSector] = useState<string>(ALL_SECTORS_KEY);
+  const [selectedCommuneName, setSelectedCommuneName] = useState<string | null>(null);
+  const [selectedProgramId, setSelectedProgramId] = useState<number | null>(null);
+  
+  // Dragging State
+  const [panelOffset, setPanelOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0, offX: 0, offY: 0 });
 
-  const allPOI = useMemo(() => {
-    const infra = INFRASTRUCTURE_GEOJSON.features.map(f => ({ ...f.properties, type: f.properties.type }));
-    const centres = CENTRES_EMERGENTS_GEOJSON.features.map(f => ({ ...f.properties, type: 'CENTRE' }));
-    return [...infra, ...centres];
+  const onDragStart = useCallback((e: React.PointerEvent) => {
+    setIsDragging(true);
+    dragStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      offX: panelOffset.x,
+      offY: panelOffset.y
+    };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, [panelOffset]);
+
+  const onDragMove = useCallback((e: React.PointerEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    setPanelOffset({
+      x: dragStart.current.offX + dx,
+      y: dragStart.current.offY + dy
+    });
+  }, [isDragging]);
+
+  const onDragEnd = useCallback(() => {
+    setIsDragging(false);
   }, []);
 
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {
-      ALL: allPOI.length,
-      AEROPORT: allPOI.filter(p => p.type === 'AEROPORT').length,
-      BARRAGE: allPOI.filter(p => p.type === 'BARRAGE').length,
-      ZI: allPOI.filter(p => p.type === 'ZI').length,
-      CENTRE: allPOI.filter(p => p.type === 'CENTRE').length,
-      LITTORAL: 1
-    };
-    return counts;
-  }, [allPOI]);
+  // Aggregation logic preserved from previous steps...
+  const sectorData = useMemo(() => {
+    if (currentSector === ALL_SECTORS_KEY) return projectsData;
+    return projectsData.filter(p => p.sector === currentSector);
+  }, [currentSector]);
 
-  const stats = useMemo(() => {
-    const filtered = currentCategory === 'ALL' ? allPOI : allPOI.filter(p => p.type === currentCategory);
-    return {
-      metric1Label: "Unités Recensées",
-      metric1Value: filtered.length,
-      metric2Label: currentCategory === 'BARRAGE' ? "Retenue (Hm3)" : "Points Géo",
-      metric2Value: currentCategory === 'BARRAGE' ? 350 : new Set(filtered.map(f => f.NOM)).size
-    };
-  }, [allPOI, currentCategory]);
-
-  const totalPopulation = useMemo(() => {
-    return Object.values(COMMUNE_DATA).reduce((sum, c) => sum + c.population, 0);
-  }, []);
-
-  const aggregatedCommunes = useMemo(() => {
+  const fullSectorCommunes = useMemo(() => {
     const map = new Map<string, CommuneAggregated>();
-    projectsData.forEach(proj => {
+    sectorData.forEach(proj => {
       if (!map.has(proj.commune_name)) {
         map.set(proj.commune_name, {
           name: proj.commune_name, lat: proj.latitude, lng: proj.longitude,
-          projects: [], totalCost: 0, totalJobs: 0, totalNJT: 0,
-          population: COMMUNE_DATA[proj.commune_name.toUpperCase()]?.population
+          projects: [], totalCost: 0, totalJobs: 0, totalNJT: 0
         });
       }
       const comm = map.get(proj.commune_name)!;
       comm.projects.push(proj);
       comm.totalCost += proj.cost_mdh;
+      comm.totalJobs += proj.jobs_planned;
+    });
+    return map;
+  }, [sectorData]);
+
+  const mapAggregatedCommunes = useMemo(() => {
+    const data = selectedProgramId ? sectorData.filter(p => p.project_id === selectedProgramId) : sectorData;
+    const map = new Map<string, CommuneAggregated>();
+    data.forEach(proj => {
+      if (!map.has(proj.commune_name)) {
+        map.set(proj.commune_name, {
+          name: proj.commune_name, lat: proj.latitude, lng: proj.longitude,
+          projects: [], totalCost: 0, totalJobs: 0, totalNJT: 0
+        });
+      }
+      const comm = map.get(proj.commune_name)!;
+      comm.projects.push(proj);
+      comm.totalCost += proj.cost_mdh;
+      comm.totalJobs += proj.jobs_planned;
     });
     return Array.from(map.values());
+  }, [sectorData, selectedProgramId]);
+
+  const groupedPrograms = useMemo(() => {
+    const map = new Map<number, { id: number, title: string, cost: number, communes: string[] }>();
+    sectorData.forEach(p => {
+      if (!map.has(p.project_id)) {
+        map.set(p.project_id, { id: p.project_id, title: p.project_title, cost: p.cost_mdh, communes: [p.commune_name] });
+      } else {
+        const entry = map.get(p.project_id)!;
+        if (!entry.communes.includes(p.commune_name)) entry.communes.push(p.commune_name);
+      }
+    });
+    return Array.from(map.values());
+  }, [sectorData]);
+
+  const stats = useMemo(() => {
+    const seen = new Set<number>();
+    const unique = sectorData.filter(p => !seen.has(p.project_id) && seen.add(p.project_id));
+    return {
+      totalCost: unique.reduce((acc, p) => acc + p.cost_mdh, 0),
+      totalProjects: unique.length,
+      totalJobs: unique.reduce((acc, p) => acc + p.jobs_planned, 0)
+    };
+  }, [sectorData]);
+
+  const chartData = useMemo(() => {
+    return Object.values(SectorType).map(s => {
+      const unique = projectsData.filter(p => p.sector === s).filter((p, i, self) => i === self.findIndex(t => t.project_id === p.project_id));
+      return { name: SECTOR_CONFIG[s].label, value: Math.round(unique.reduce((acc, p) => acc + p.cost_mdh, 0)), type: s };
+    });
   }, []);
 
-  const currentNavLabel = NAV_ITEMS.find(n => n.id === activeSection)?.label || '';
+  const handleSectorChange = (s: string) => {
+    setCurrentSector(s);
+    setSelectedCommuneName(null);
+    setSelectedProgramId(null); 
+  };
+
+  const handleProgramClick = (id: number) => {
+    setSelectedProgramId(prev => prev === id ? null : id);
+    setSelectedCommuneName(null); 
+  };
+
+  const selectedCommuneData = selectedCommuneName ? fullSectorCommunes.get(selectedCommuneName) : null;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#f1f5f9] font-sans">
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 z-[100] shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#000080] rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-xl shrink-0">T</div>
-          <div className="flex flex-col">
-            <h1 className="text-base md:text-lg font-black text-[#000080] tracking-tight leading-none mb-1">
-              Projet du PDTI de la Province de Tétouan
-            </h1>
-            <p className="text-[10px] md:text-[11px] text-slate-500 font-bold italic tracking-tight leading-none uppercase">
-              (La 1ère Tranche Prioritaire, Au titre de l’Année 2026)
-            </p>
+    <div className="flex h-screen w-full bg-[#020617] text-slate-100 font-sans overflow-hidden">
+      {/* Left Sidebar */}
+      <aside className="w-80 lg:w-[420px] h-full bg-slate-900/40 backdrop-blur-2xl border-r border-white/5 flex flex-col z-30 shadow-2xl overflow-y-auto custom-scrollbar">
+        <div className="p-8 space-y-8">
+          <header className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-[0_0_20px_rgba(79,70,229,0.4)]">T</div>
+              <h1 className="text-2xl font-bold tracking-tight text-white font-display">PDTI Tétouan</h1>
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 pl-1">Stratégie Territoriale 2026</p>
+          </header>
+
+          <SectorTabs sectors={DISPLAY_SECTOR_CONFIG} currentSector={currentSector} onSelect={handleSectorChange} />
+
+          <div className="space-y-4 pt-4 border-t border-white/5">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-2 flex items-center justify-between">
+              <span>Indicateurs Consolidés</span>
+              {selectedProgramId && (
+                <span className="text-[8px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md border border-indigo-500/20 animate-pulse">Focus Programme</span>
+              )}
+            </h3>
+            <div className="grid grid-cols-1 gap-3">
+              <StatCard label="Investissement" value={Math.round(stats.totalCost)} suffix="MDH" />
+              <div className="grid grid-cols-2 gap-3">
+                <StatCard label="Programmes" value={stats.totalProjects} />
+                <StatCard label="Impact" value={stats.totalJobs} suffix="Empl." />
+              </div>
+            </div>
           </div>
+
+          {currentSector === ALL_SECTORS_KEY && (
+            <div className="bg-slate-800/10 rounded-[2rem] p-6 border border-white/5 shadow-inner">
+               <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6">Volume par Secteur</h3>
+               <div className="h-56">
+                 <InvestmentChart data={chartData} sectorConfigs={SECTOR_CONFIG} />
+               </div>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* Map Center */}
+      <main className="flex-1 relative h-full bg-slate-950">
+        <div className="absolute inset-0 p-4 lg:p-10">
+          <DashboardMap 
+            communes={mapAggregatedCommunes} 
+            selectedCommune={selectedCommuneData || null}
+            sectorConfig={DISPLAY_SECTOR_CONFIG[currentSector]}
+            activeSector={currentSector}
+            selectedProgramId={selectedProgramId}
+            onCommuneSelect={(c) => setSelectedCommuneName(c.name)}
+          />
         </div>
 
-        <nav className="hidden lg:flex items-center border-[2.5px] border-[#000080] rounded-xl overflow-hidden bg-slate-50/40 max-w-[65%]">
-          {NAV_ITEMS.map((item, idx) => (
-            <React.Fragment key={item.id}>
-              {idx > 0 && <div className="w-[2px] h-6 bg-[#000080]/20" />}
-              <button
-                onClick={() => {
-                  setActiveSection(item.id);
-                  setShowPresentation(false);
-                  setSelectedCommune(null);
-                  setSelectedPOI(null);
-                }}
-                className={`px-5 py-3.5 text-[9px] font-black uppercase tracking-[0.05em] transition-all leading-tight text-center ${activeSection === item.id
-                  ? 'bg-[#000080] text-white'
-                  : 'text-[#000080] hover:bg-[#000080]/5'
-                  }`}
-              >
-                {item.label}
-              </button>
-            </React.Fragment>
-          ))}
-        </nav>
-      </header>
-
-      <div className="flex flex-1 overflow-hidden relative">
-        <aside className="w-85 lg:w-96 flex flex-col bg-white border-r border-slate-200 overflow-y-auto shrink-0 z-10 custom-scrollbar shadow-lg">
-          <div className="p-5 space-y-8">
-            <FeatureTabs
-              categories={Object.fromEntries(Object.entries(FEATURE_CATEGORIES).filter(([k]) => k !== 'LITTORAL')) as any}
-              currentCategory={currentCategory}
-              onSelect={(k) => { setCurrentCategory(k); setSelectedPOI(null); setSelectedCommune(null); }}
-              counts={categoryCounts}
-            />
-            <FeatureList
-              filter={currentCategory}
-              onFeatureSelect={(coords, name) => { setSelectedPOI({ coords, name }); setSelectedCommune(null); }}
-              activeFeatureName={selectedPOI?.name || null}
-            />
-            <div className="pt-2 border-t border-slate-100">
-              <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4 px-2">Indicateurs de Couverture</h3>
-              <div className="grid grid-cols-1 gap-3">
-                <StatCard label={stats.metric1Label} value={stats.metric1Value} icon={<div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#000080' }}></div>} />
-                <StatCard label={stats.metric2Label} value={stats.metric2Value} />
-                <StatCard label="Population Totale" value={totalPopulation.toLocaleString('fr-FR')} icon="👥" />
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <main className="flex-1 relative bg-slate-100 overflow-hidden">
-          <div className="absolute inset-0 z-0">
-            {!showPresentation ? (
-              <div key={activeSection} className="w-full h-full p-4 lg:p-6 animate-in fade-in zoom-in-95 duration-500">
-                <DashboardMap
-                  communes={aggregatedCommunes}
-                  selectedCommune={selectedCommune}
-                  selectedPOI={selectedPOI}
-                  sectorConfig={FEATURE_CATEGORIES[currentCategory as keyof typeof FEATURE_CATEGORIES] || FEATURE_CATEGORIES.ALL}
-                  onCommuneSelect={setSelectedCommune}
-                />
-              </div>
+        {/* Floating Draggable Panels Overlay */}
+        <div 
+          style={{ 
+            transform: `translate(${panelOffset.x}px, ${panelOffset.y}px)`,
+          }}
+          className={`absolute top-14 right-14 bottom-14 w-[420px] z-40 pointer-events-none transition-shadow duration-300 ${isDragging ? 'shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)]' : ''}`}
+        >
+          <div className="pointer-events-auto h-full flex flex-col gap-6">
+            {selectedCommuneName ? (
+              <ProjectList 
+                commune={selectedCommuneData || null} 
+                onClose={() => setSelectedCommuneName(null)} 
+                onDragStart={onDragStart}
+                onPointerMove={onDragMove}
+                onPointerUp={onDragEnd}
+              />
             ) : (
-              <div className="w-full h-full animate-in fade-in duration-500 bg-slate-900">
-                <ProvincePresentation onClose={() => setShowPresentation(false)} />
-              </div>
+              currentSector !== ALL_SECTORS_KEY && (
+                <SectoralOverview 
+                  programs={groupedPrograms} 
+                  config={DISPLAY_SECTOR_CONFIG[currentSector]} 
+                  selectedProgramId={selectedProgramId}
+                  onProgramClick={handleProgramClick}
+                  onDragStart={onDragStart}
+                  onPointerMove={onDragMove}
+                  onPointerUp={onDragEnd}
+                />
+              )
             )}
           </div>
-
-          {!showPresentation && (
-            <button
-              onClick={() => setShowPresentation(true)}
-              className="absolute top-10 right-10 z-[150] flex items-stretch shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-[1.02] active:scale-95 group animate-in slide-in-from-top-4 duration-700"
-            >
-              <div className="bg-[#eaf7f9] border-[2.5px] border-[#000080] px-6 flex items-center justify-center transition-colors group-hover:bg-[#dcf3f6]">
-                <span className="text-[#cf2e2e] font-black text-3xl font-display">I</span>
-              </div>
-              <div className="bg-white border-[2.5px] border-l-0 border-[#000080] px-8 py-5 flex items-center">
-                <h2 className="text-[11px] md:text-[13px] font-black tracking-tight text-[#000080] whitespace-nowrap uppercase font-display max-w-[320px] truncate leading-tight">
-                  {currentNavLabel}
-                </h2>
-              </div>
-            </button>
-          )}
-
-          {!showPresentation && (
-            <div className="absolute bottom-10 left-10 z-[100] bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 border border-slate-200 w-80 animate-in slide-in-from-left-4 duration-500">
-              <h4 className="font-black text-[#000080] mb-5 uppercase tracking-tighter text-[11px] flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-                Légende Territoriale
-              </h4>
-              <div className="grid grid-cols-1 gap-3">
-                {[
-                  { id: 'AEROPORT', lbl: "Aéroport" },
-                  { id: 'BARRAGE', lbl: "Barrages" },
-                  { id: 'ZI', lbl: "Zones Industrielles" },
-                  { id: 'CENTRE', lbl: "Centres Émergents" },
-                  { id: 'LITTORAL', lbl: "Linéaire Littoral" }
-                ].map((item) => {
-                  const config = FEATURE_CATEGORIES[item.id as keyof typeof FEATURE_CATEGORIES];
-                  return (
-                    <div key={item.id} className="flex items-center justify-between group transition-all duration-200">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl border" style={{ backgroundColor: `${config.hex}10`, color: config.hex, borderColor: `${config.hex}30` }}>
-                          {item.id === 'LITTORAL' ? (
-                            <div className="w-6 h-1 rounded-full" style={{ backgroundColor: config.hex }}></div>
-                          ) : (
-                            typeof config.icon === 'string' ? config.icon : <div className="w-5 h-5">{config.icon}</div>
-                          )}
-                        </div>
-                        <span className="text-[12px] text-slate-700 font-bold uppercase tracking-tight">{item.lbl}</span>
-                      </div>
-                      {item.id !== 'LITTORAL' && <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg">{categoryCounts[item.id]}</span>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };

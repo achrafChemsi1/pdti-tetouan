@@ -1,268 +1,248 @@
 import React, { useMemo, useEffect, useRef } from 'react';
-import Map from 'ol/Map';
-import View from 'ol/View';
-import { Vector as VectorLayer, Tile as TileLayer } from 'ol/layer';
-import { Vector as VectorSource, XYZ } from 'ol/source';
-import GeoJSON from 'ol/format/GeoJSON';
-import { Style, Fill, Stroke, Text, Icon } from 'ol/style';
-import { fromLonLat } from 'ol/proj';
-import { getRenderPixel } from 'ol/render';
-import { defaults as defaultInteractions, MouseWheelZoom, DoubleClickZoom, PinchZoom } from 'ol/interaction';
-import { CommuneAggregated, SectorConfig } from '../types';
+import { MapContainer, TileLayer, useMap, GeoJSON } from 'react-leaflet';
+import { CommuneAggregated, SectorConfig, SectorType } from '../types';
 import { getTetouanProvinceGeoJSON } from '../services/adminBoundaries';
-import { LITTORAL_GEOJSON, CENTRES_EMERGENTS_GEOJSON, INFRASTRUCTURE_GEOJSON } from '../services/mapLayersData';
+import L from 'leaflet';
 
 interface DashboardMapProps {
   communes: CommuneAggregated[];
   selectedCommune: CommuneAggregated | null;
-  selectedPOI?: { coords: [number, number]; name: string } | null;
   sectorConfig: SectorConfig;
-  onCommuneSelect: (commune: CommuneAggregated | null) => void;
+  activeSector: string;
+  selectedProgramId: number | null;
+  onCommuneSelect: (commune: CommuneAggregated) => void;
 }
 
-const PROVINCE_CENTER = [-5.40, 35.53];
-const PROVINCE_ZOOM = 10.3;
-const COMMUNE_ZOOM = 12.0;
+const FitBounds: React.FC<{ data: any }> = ({ data }) => {
+  const map = useMap();
+  const hasFitted = useRef(false);
 
-const PLANE_ICON_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#4f46e5">
-    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-  </svg>
-`);
+  useEffect(() => {
+    // Only fit the bounds once on initial load to show the whole province
+    if (data && !hasFitted.current) {
+      const layer = L.geoJSON(data);
+      map.fitBounds(layer.getBounds(), { padding: [50, 50], animate: true, duration: 1.8 });
+      hasFitted.current = true;
+    }
+  }, [data, map]);
+  return null;
+};
 
-const CENTRE_ICON_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-    <rect x="2" y="6" width="20" height="14" rx="2.5" fill="white" stroke="#059669" stroke-width="2.2"/>
-    <path d="M12 9.5v7M8.5 13h7" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round"/>
-  </svg>
-`);
+const mapStyle = `
+  .leaflet-container {
+    background: #020617 !important;
+    border-radius: 2.5rem;
+    cursor: crosshair;
+  }
+  path.leaflet-interactive {
+    transition: fill 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                fill-opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                stroke 0.4s ease, 
+                stroke-width 0.4s ease;
+    outline: none;
+  }
+  .commune-tooltip {
+    background: #0f172a !important;
+    border: 1px solid #1e293b !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    color: #f8fafc !important;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    padding: 6px 12px;
+    border-radius: 6px;
+    z-index: 1000;
+  }
+  .selected-glow {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.7));
+  }
+`;
 
-const FACTORY_ICON_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-    <path d="M2 22h20V12h-4V4h-4v8h-2V4H8v8H2v10z" fill="#d97706" stroke="#ffffff" stroke-width="1"/>
-  </svg>
-`);
-
-const DAM_ICON_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
-    <path d="M12 2.5s-7 8.5-7 12.5a7 7 0 0 0 14 0c0-4-7-12.5-7-12.5z" fill="#2563eb"/>
-  </svg>
-`);
-
-export const DashboardMap: React.FC<DashboardMapProps> = ({
-  communes,
-  selectedCommune,
-  selectedPOI,
-  sectorConfig,
-  onCommuneSelect
+export const DashboardMap: React.FC<DashboardMapProps> = ({ 
+  communes, 
+  selectedCommune, 
+  sectorConfig, 
+  activeSector, 
+  selectedProgramId,
+  onCommuneSelect 
 }) => {
-  const mapElement = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<Map | null>(null);
-  const vectorSourceRef = useRef<VectorSource | null>(null);
-
   const provinceFeatures = useMemo(() => getTetouanProvinceGeoJSON(), []);
+  
+  const basemapUrl = useMemo(() => {
+    switch (activeSector) {
+      case SectorType.Eau:
+        return "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+      case SectorType.Emploi:
+        return "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png";
+      case SectorType.Education:
+        return "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
+      case SectorType.Sante:
+        return "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+      case SectorType.MiseNiveauTerritoriale:
+        return "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}";
+      default:
+        return "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png";
+    }
+  }, [activeSector]);
 
-  const getDecoupageStyle = (feature: any, isHovered: boolean) => {
-    const communeName = feature.get('name') || feature.get('Nom commun');
-    const population = feature.get('population');
-    const isSelected = selectedCommune?.name.toUpperCase() === communeName?.toUpperCase();
+  const maskGeoJSON = useMemo(() => {
+    const worldOuter = [[-180, -90], [-180, 90], [180, 90], [180, -90], [-180, -90]];
+    const holes = provinceFeatures.features.map(f => {
+      if (f.geometry.type === "Polygon") return f.geometry.coordinates[0];
+      return [];
+    }).filter(h => h.length > 0);
 
-    const labelText = isSelected && population
-      ? `${communeName}\nPop: ${population.toLocaleString('fr-FR')}`
-      : communeName;
+    return {
+      type: "Feature",
+      geometry: { type: "Polygon", coordinates: [worldOuter, ...holes] }
+    };
+  }, [provinceFeatures]);
 
-    return [
-      new Style({
-        stroke: new Stroke({
-          color: isSelected ? sectorConfig.hex : 'rgba(0, 0, 128, 0.6)',
-          width: isSelected ? 3.5 : 1.5
-        }),
-        zIndex: isSelected ? 10 : 1
-      }),
-      new Style({
-        fill: new Fill({
-          color: isSelected ? `${sectorConfig.hex}25` : (isHovered ? 'rgba(0, 0, 128, 0.1)' : 'rgba(255, 255, 255, 0.5)')
-        }),
-        text: new Text({
-          text: labelText,
-          font: isSelected ? 'bold 12px "Inter", sans-serif' : '500 10px "Inter", sans-serif',
-          fill: new Fill({ color: '#000080' }),
-          stroke: new Stroke({ color: 'rgba(255, 255, 255, 0.9)', width: 3 }),
-          offsetY: isSelected ? -10 : 0,
-          overflow: true
-        }),
-        zIndex: isSelected ? 11 : 2
-      })
-    ];
+  const communeStyle = (feature: any) => {
+    const communeName = feature?.properties?.name;
+    const isSelected = selectedCommune?.name === communeName;
+    const matchingCommune = communes.find(c => c.name === communeName);
+    const hasData = !!matchingCommune;
+    
+    const isLightMap = activeSector === SectorType.Education || activeSector === SectorType.Sante;
+
+    // High contrast strokes
+    const strokeColor = isLightMap ? 'rgba(15, 23, 42, 0.5)' : 'rgba(255, 255, 255, 0.7)';
+    const activeStrokeColor = '#ffffff';
+
+    if (!hasData) {
+      return {
+        fillColor: 'transparent',
+        fillOpacity: 0,
+        weight: 3, 
+        opacity: 0.2, 
+        color: strokeColor,
+        dashArray: '4, 8',
+        interactive: false 
+      };
+    }
+
+    const baseWeight = 4; 
+    const selectedWeight = 8; 
+
+    if (activeSector === SectorType.Eau) {
+      return {
+        fillColor: isSelected ? '#38bdf8' : '#0ea5e9',
+        weight: isSelected ? selectedWeight : baseWeight,
+        opacity: 1,
+        color: '#ffffff',
+        fillOpacity: isSelected ? 0.7 : 0.5,
+        className: isSelected ? 'selected-glow' : ''
+      };
+    }
+
+    return {
+      fillColor: sectorConfig.hex,
+      weight: isSelected ? selectedWeight : baseWeight,
+      opacity: 1,
+      color: isSelected ? activeStrokeColor : strokeColor,
+      fillOpacity: isSelected ? 0.75 : 0.5,
+      className: isSelected ? 'selected-glow' : ''
+    };
   };
 
-  const littoralStyle = [
-    new Style({ stroke: new Stroke({ color: 'rgba(37, 99, 235, 0.1)', width: 20 }), zIndex: 40 }),
-    new Style({ stroke: new Stroke({ color: 'rgba(37, 99, 235, 0.25)', width: 8 }), zIndex: 41 }),
-    new Style({ stroke: new Stroke({ color: '#1d4ed8', width: 3 }), zIndex: 42 })
-  ];
+  const onEachFeature = (feature: any, layer: L.Layer) => {
+    const communeName = feature.properties.name;
+    const matching = communes.find(c => c.name === communeName);
 
-  useEffect(() => {
-    if (!mapElement.current || mapRef.current) {
-      return;
-    }
-
-    const vectorSource = new VectorSource({
-      features: new GeoJSON().readFeatures(provinceFeatures, { featureProjection: 'EPSG:3857' })
-    });
-    vectorSourceRef.current = vectorSource;
-
-    const topoLayer = new TileLayer({
-      source: new XYZ({ url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png' }),
-      opacity: 0.9,
-      zIndex: 5
-    });
-
-    topoLayer.on('prerender', (event) => {
-      const ctx = event.context as CanvasRenderingContext2D;
-      const eventMap = event.target.get('map') || mapRef.current;
-      if (!eventMap) return;
-
-      ctx.save();
-      ctx.beginPath();
-      vectorSource.getFeatures().forEach((feature) => {
-        const geometry = feature.getGeometry();
-        if (geometry && geometry.getType() === 'Polygon') {
-          const coords = (geometry as any).getCoordinates()[0];
-          coords.forEach((coord: number[], i: number) => {
-            const pixel = eventMap.getPixelFromCoordinate(coord);
-            const renderPixel = getRenderPixel(event, pixel);
-            if (i === 0) ctx.moveTo(renderPixel[0], renderPixel[1]);
-            else ctx.lineTo(renderPixel[0], renderPixel[1]);
-          });
-        }
+    if (matching) {
+      layer.bindTooltip(communeName, { 
+          sticky: true, 
+          className: 'commune-tooltip', 
+          direction: 'top', 
+          offset: [0, -10] 
       });
-      ctx.clip();
-    });
 
-    topoLayer.on('postrender', (event) => {
-      const ctx = event.context as CanvasRenderingContext2D;
-      ctx.restore();
-    });
-
-    const map = new Map({
-      target: mapElement.current,
-      // ACTIVATE ZOOM ONLY, KEEP POSITION FIXED (Disable DragPan)
-      interactions: defaultInteractions({
-        dragPan: false, // Blocks moving the map around
-        mouseWheelZoom: true,
-        doubleClickZoom: true,
-        pinchZoom: true
-      }),
-      layers: [
-        topoLayer,
-        new VectorLayer({ source: vectorSource, style: (f) => getDecoupageStyle(f, false), zIndex: 10 }),
-        new VectorLayer({
-          source: new VectorSource({ features: new GeoJSON().readFeatures(LITTORAL_GEOJSON, { featureProjection: 'EPSG:3857' }) }),
-          style: littoralStyle,
-          zIndex: 40
-        }),
-        new VectorLayer({
-          source: new VectorSource({ features: new GeoJSON().readFeatures(CENTRES_EMERGENTS_GEOJSON, { featureProjection: 'EPSG:3857' }) }), style: (f) => [
-            new Style({ image: new Icon({ src: CENTRE_ICON_SVG, scale: 0.85 }), zIndex: 100 }),
-            new Style({ text: new Text({ text: f.get('NOM'), font: '800 9px "Inter"', fill: new Fill({ color: '#059669' }), stroke: new Stroke({ color: '#fff', width: 3 }), offsetY: 18 }), zIndex: 101 })
-          ], zIndex: 35
-        }),
-        new VectorLayer({
-          source: new VectorSource({ features: new GeoJSON().readFeatures(INFRASTRUCTURE_GEOJSON, { featureProjection: 'EPSG:3857' }) }), style: (f) => {
-            const type = f.get('type');
-            let src = DAM_ICON_SVG;
-            let color = '#2563eb';
-            if (type === 'AEROPORT') { src = PLANE_ICON_SVG; color = '#4f46e5'; }
-            if (type === 'ZI') { src = FACTORY_ICON_SVG; color = '#d97706'; }
-            return [
-              new Style({ image: new Icon({ src, scale: 0.75 }), zIndex: 80 }),
-              new Style({ text: new Text({ text: f.get('NOM'), font: 'bold 9px "Inter"', fill: new Fill({ color }), stroke: new Stroke({ color: '#fff', width: 3 }), offsetY: -20 }), zIndex: 81 })
-            ];
-          }, zIndex: 45
-        })
-      ],
-      view: new View({
-        center: fromLonLat(PROVINCE_CENTER),
-        zoom: PROVINCE_ZOOM,
-        minZoom: 10,
-        maxZoom: 16
-      })
-    });
-
-    mapRef.current = map;
-
-    map.on('click', (e) => {
-      let found = false;
-      map.forEachFeatureAtPixel(e.pixel, (f) => {
-        const name = f.get('name') || f.get('Nom commun'); // Fix: Check both properties
-        if (!name) return;
-        const matching = communes.find(c => c.name.toUpperCase() === name.toUpperCase());
-        if (matching) {
+      layer.on({
+        mouseover: (e) => {
+          const l = e.target;
+          l.setStyle({ weight: 9, fillOpacity: 0.85, opacity: 1, color: '#fff' });
+          l.bringToFront();
+        },
+        mouseout: (e) => {
+          const l = e.target;
+          l.setStyle(communeStyle(feature));
+        },
+        click: (e) => {
+          L.DomEvent.stopPropagation(e);
           onCommuneSelect(matching);
-          found = true;
         }
-        return true;
-      }, { layerFilter: (l) => l.getZIndex() === 10 });
-
-      if (!found) onCommuneSelect(null);
-    });
-
-    map.on('pointermove', (e) => {
-      const pixel = map.getEventPixel(e.originalEvent);
-      const hit = map.hasFeatureAtPixel(pixel, { layerFilter: (l) => l.getZIndex() === 10 });
-      map.getTargetElement().style.cursor = hit ? 'pointer' : 'default';
-    });
-
-    return () => {
-      map.setTarget(undefined);
-      mapRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!vectorSourceRef.current) return;
-
-    vectorSourceRef.current.getFeatures().forEach(f => {
-      const cName = f.get('name') || f.get('Nom commun');
-      const matchingCommune = communes.find(c => c.name.toUpperCase() === cName?.toUpperCase());
-      if (matchingCommune) {
-        f.set('population', matchingCommune.population);
-      }
-      f.setStyle(getDecoupageStyle(f, false));
-    });
-  }, [communes, sectorConfig, selectedCommune]);
-
-  useEffect(() => {
-    if (!mapRef.current) return;
-    const view = mapRef.current.getView();
-
-    if (selectedCommune) {
-      view.animate({
-        center: fromLonLat([selectedCommune.lng, selectedCommune.lat]),
-        zoom: COMMUNE_ZOOM,
-        duration: 1200,
-        easing: (t) => t * (2 - t)
-      });
-    } else if (selectedPOI) {
-      view.animate({
-        center: fromLonLat(selectedPOI.coords),
-        zoom: 14,
-        duration: 1200
       });
     } else {
-      view.animate({
-        center: fromLonLat(PROVINCE_CENTER),
-        zoom: PROVINCE_ZOOM,
-        duration: 1200
-      });
+      layer.unbindTooltip();
+      layer.off();
     }
-  }, [selectedCommune, selectedPOI]);
+  };
 
   return (
-    <div
-      ref={mapElement}
-      className="w-full h-full rounded-2xl shadow-[0_10px_50px_rgba(0,0,0,0.12)] border border-slate-200 overflow-hidden bg-[#eaf7f9]"
-    />
+    <div className="relative w-full h-full bg-slate-950 overflow-hidden rounded-[3rem] border border-slate-800/50 shadow-inner">
+      <style>{mapStyle}</style>
+
+      <MapContainer 
+        center={[35.53, -5.40]} 
+        zoom={10} 
+        className="w-full h-full z-0"
+        zoomControl={false}
+        attributionControl={false}
+        maxBounds={[[34.0, -6.5], [37.0, -4.5]]}
+        minZoom={9}
+      >
+        <TileLayer url={basemapUrl} />
+
+        <GeoJSON 
+          data={maskGeoJSON as any} 
+          style={{ 
+            fillColor: '#020617', 
+            fillOpacity: activeSector === SectorType.Education ? 0.6 : 0.85, 
+            weight: 0, 
+            stroke: false 
+          }} 
+          interactive={false} 
+        />
+
+        <GeoJSON 
+            key={`${activeSector}-${selectedProgramId}-${selectedCommune?.name}`}
+            data={provinceFeatures as any}
+            style={communeStyle}
+            onEachFeature={onEachFeature}
+        />
+
+        {(activeSector !== SectorType.Eau && activeSector !== 'Tous') && (
+           <TileLayer
+             url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
+             opacity={0.6}
+           />
+        )}
+
+        <FitBounds data={provinceFeatures} />
+      </MapContainer>
+
+      {/* Analytics HUD */}
+      <div className="absolute top-10 left-10 z-20 hidden lg:flex flex-col gap-2">
+        <div className="flex items-center gap-4 bg-slate-900/80 backdrop-blur-3xl px-6 py-3 rounded-2xl border border-white/10 shadow-2xl">
+          <div className="relative">
+            <div className={`w-3 h-3 rounded-full animate-ping absolute inset-0`} style={{backgroundColor: sectorConfig.hex}}></div>
+            <div className={`w-3 h-3 rounded-full relative`} style={{backgroundColor: sectorConfig.hex}}></div>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">
+              {sectorConfig.label}
+            </span>
+            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">
+              Axe Stratégique
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,0.6)] z-10 rounded-[3rem]"></div>
+    </div>
   );
 };
